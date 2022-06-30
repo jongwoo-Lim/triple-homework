@@ -4,6 +4,7 @@ import com.triple.triplehomework.common.code.PointCode;
 import com.triple.triplehomework.entity.BaseEntity;
 import com.triple.triplehomework.entity.review.Review;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Getter
 @ToString(exclude = "review")
 public class Point extends BaseEntity {
 
@@ -39,6 +41,7 @@ public class Point extends BaseEntity {
             Integer accumAmt, Integer balAmt,
             String occurCause, Review review){
 
+        pointId.increaseOccurSeq();
         return Point.builder()
                 .pointId(pointId)
                 .pointCode(pointCode)
@@ -47,6 +50,14 @@ public class Point extends BaseEntity {
                 .occurCause(occurCause)
                 .review(review)
                 .build();
+    }
+
+    /**
+     * 적립금 및 잔여금액 증가
+     */
+    public void increaseAccumAmt(){
+        this.accumAmt++;
+        this.balAmt++;
     }
 
 }

@@ -13,12 +13,14 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode
+@Getter
 @ToString(exclude = "review")
 public class AttachedPhotoId implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rno")
     private Review review;
+
     private Long photoNo;
 
     public static AttachedPhotoId createAttachedPhotoId(Review review, Long photoNo){
@@ -26,5 +28,12 @@ public class AttachedPhotoId implements Serializable {
                 .review(review)
                 .photoNo(photoNo)
                 .build();
+    }
+
+    /**
+     * 첨부파일 번호 증가
+     */
+    public void increasePhotoNo(){
+        this.photoNo++;
     }
 }

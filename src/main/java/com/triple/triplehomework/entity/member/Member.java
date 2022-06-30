@@ -1,10 +1,7 @@
 package com.triple.triplehomework.entity.member;
 
 import com.triple.triplehomework.entity.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,6 +12,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "MEMBER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@EqualsAndHashCode(of = "mno", callSuper = true)
 @ToString
 public class Member extends BaseEntity {
 

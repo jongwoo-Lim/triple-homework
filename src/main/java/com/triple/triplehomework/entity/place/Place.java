@@ -2,9 +2,7 @@ package com.triple.triplehomework.entity.place;
 
 import com.triple.triplehomework.entity.BaseEntity;
 import com.triple.triplehomework.entity.member.Member;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -12,6 +10,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "PLACE")
 @NoArgsConstructor
+@Getter
+@EqualsAndHashCode(of = "pno", callSuper = true)
 @ToString(exclude = "member")
 public class Place extends BaseEntity {
 
@@ -20,6 +20,7 @@ public class Place extends BaseEntity {
 
     private UUID placeId;
 
+    // 등록자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mno")
     private Member member;

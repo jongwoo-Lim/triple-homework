@@ -12,6 +12,7 @@ import javax.persistence.Table;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Getter
 @ToString
 public class TotalPoint extends BaseEntity {
 
@@ -19,16 +20,16 @@ public class TotalPoint extends BaseEntity {
     private Long mno;
 
     // 적립총액
-    private Integer accumTotalAmt;
+    private Integer earnTotalAmt;
 
     // 차감총액
-    private Integer balTotalAmt;
+    private Integer deductTotalAmt;
 
-    public static TotalPoint createTotalPoint(Long mno, Integer accumTotalAmt, Integer balTotalAmt){
+    public static TotalPoint createTotalPoint(Long mno, Integer earnTotalAmt, Integer deductTotalAmt){
         return TotalPoint.builder()
                 .mno(mno)
-                .accumTotalAmt(accumTotalAmt)
-                .balTotalAmt(balTotalAmt)
+                .earnTotalAmt(earnTotalAmt)
+                .deductTotalAmt(deductTotalAmt)
                 .build();
     }
 }

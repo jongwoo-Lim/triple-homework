@@ -1,0 +1,7 @@
+package com.triple.triplehomework.repository;
+
+import com.triple.triplehomework.entity.review.Review;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ReviewRepository extends JpaRepository<Review, Long> {
+}

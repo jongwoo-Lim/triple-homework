@@ -13,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Getter
 @ToString
 public class AttachedPhoto extends BaseEntity {
 
@@ -21,8 +22,12 @@ public class AttachedPhoto extends BaseEntity {
     private UUID photoId;
 
     public static AttachedPhoto createAttachedPhoto(AttachedPhotoId attachedPhotoId, UUID photoId){
+        attachedPhotoId.increasePhotoNo();
+
+        AttachedPhotoId build = AttachedPhotoId.createAttachedPhotoId(attachedPhotoId.getReview(), attachedPhotoId.getPhotoNo());
+
         return AttachedPhoto.builder()
-                .attachedPhotoId(attachedPhotoId)
+                .attachedPhotoId(build)
                 .photoId(photoId)
                 .build();
     }

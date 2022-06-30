@@ -9,6 +9,7 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Getter
 @EqualsAndHashCode
 public class PointId implements Serializable {
 
@@ -22,5 +23,12 @@ public class PointId implements Serializable {
                 .mno(mno)
                 .occurSeq(occurSeq)
                 .build();
+    }
+
+    /**
+     * 발생 순번 증가
+     */
+    public void increaseOccurSeq(){
+        this.occurSeq++;
     }
 }
