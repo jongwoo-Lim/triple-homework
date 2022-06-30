@@ -1,23 +1,27 @@
 package com.triple.triplehomework.entity.place;
 
+import com.fasterxml.uuid.Generators;
 import com.triple.triplehomework.entity.BaseEntity;
 import com.triple.triplehomework.entity.member.Member;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
 @Table(name = "PLACE")
 @NoArgsConstructor
 @Getter
-@EqualsAndHashCode(of = "pno", callSuper = true)
 @ToString(exclude = "member")
 public class Place extends BaseEntity {
 
-    @Id @GeneratedValue
-    private Long pno;
-
+    @Id
+    @Column(columnDefinition = "BINARY(16)")
     private UUID placeId;
 
     // 등록자
@@ -25,16 +29,42 @@ public class Place extends BaseEntity {
     @JoinColumn(name = "mno")
     private Member member;
 
-    public static Place createPlace(UUID placeId, Member member){
+    @PrePersist
+    public void createPlaceId() {
+        //sequential uuid
+        UUID uuid = Generators.timeBasedGenerator().generate();
+        String[] uuidArr = uuid.toString().split("-");
+        String uuidStr = uuidArr[2]+uuidArr[1]+uuidArr[0]+uuidArr[3]+uuidArr[4];
+        StringBuffer sb = new StringBuffer(uuidStr);
+        sb.insert(8, "-");
+        sb.insert(13, "-");
+        sb.insert(18, "-");
+        sb.insert(23, "-");
+        uuid = UUID.fromString(sb.toString());
+        this.placeId = uuid;
+    }
+
+    public static Place createPlace(Member member){
         return Place.builder()
-                .placeId(placeId)
                 .member(member)
                 .build();
     }
 
     @Builder
-    public Place(UUID placeId, Member member) {
-        this.placeId = placeId;
+    public Place(Member member) {
         this.member = member;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Place place = (Place) o;
+        return placeId != null && Objects.equals(placeId, place.placeId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -50,8 +50,7 @@ public class BaseRepositoryTest {
      * @return
      */
     protected Place createPlace(Member member){
-        UUID placeId = UUID.randomUUID();
-        Place place = Place.createPlace(placeId, member);
+        Place place = Place.createPlace(member);
         return placeRepository.save(place);
     }
 
@@ -62,9 +61,8 @@ public class BaseRepositoryTest {
      * @return
      */
     protected Review createReview(Member member, Place place){
-        UUID reviewId = UUID.randomUUID();
         String type = "REVIEW";
         String content = "좋아요";
-        return Review.createReview(reviewId, type, ReviewActionCode.ADD, content, member.getUserId(), place);
+        return Review.createReview(type, ReviewActionCode.ADD, content, member.getUserId(), place);
     }
 }

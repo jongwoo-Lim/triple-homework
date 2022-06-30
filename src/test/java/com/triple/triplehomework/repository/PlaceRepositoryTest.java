@@ -22,16 +22,14 @@ class PlaceRepositoryTest extends BaseRepositoryTest{
     @DisplayName("장소 등록 테스트")
     public void createPlace_test() throws Exception{
         // Given
-        UUID placeId = UUID.randomUUID();
         Member member = createMember();
-        Place place = Place.createPlace(placeId, member);
+        Place place = Place.createPlace(member);
         // When
         Place savedPlace = placeRepository.save(place);
         placeRepository.findAll();
 
         // Then
-        assertThat(savedPlace.getPno()).isNotNull();
-        assertThat(savedPlace.getPlaceId()).isEqualTo(placeId);
+        assertThat(savedPlace.getPlaceId()).isNotNull();
     }
 
 

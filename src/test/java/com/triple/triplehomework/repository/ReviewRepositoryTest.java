@@ -20,11 +20,14 @@ class ReviewRepositoryTest extends BaseRepositoryTest {
 
         Member member = createMember();
         Review review = createReview(member, place);
+
         // When
         Review savedReview = reviewRepository.save(review);
+
+
         reviewRepository.findAll();
         // Then
-        assertThat(savedReview.getRno()).isNotNull();
+        assertThat(savedReview.getReviewId()).isNotNull();
         assertThat(savedReview.getAction()).isEqualTo(ReviewActionCode.ADD);
     }
 

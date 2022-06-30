@@ -18,7 +18,7 @@ import java.io.Serializable;
 public class AttachedPhotoId implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rno")
+    @JoinColumn(name = "review_id")
     private Review review;
 
     private Long photoNo;

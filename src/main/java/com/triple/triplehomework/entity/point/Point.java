@@ -4,9 +4,10 @@ import com.triple.triplehomework.common.code.PointCode;
 import com.triple.triplehomework.entity.BaseEntity;
 import com.triple.triplehomework.entity.review.Review;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "POINT")
@@ -33,7 +34,7 @@ public class Point extends BaseEntity {
     private String occurCause;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rno")
+    @JoinColumn(name = "review_id")
     private Review review;
 
     public static Point createPoint(
@@ -60,4 +61,16 @@ public class Point extends BaseEntity {
         this.balAmt++;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Point point = (Point) o;
+        return pointId != null && Objects.equals(pointId, point.pointId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pointId);
+    }
 }
