@@ -11,6 +11,8 @@ import com.triple.triplehomework.entity.review.AttachedPhotoId;
 import com.triple.triplehomework.entity.review.Review;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
 
@@ -70,9 +72,8 @@ class PointRepositoryTest extends BaseRepositoryTest{
         Point savedPoint = pointRepository.save(point);
         pointRepository.findAll();
 
-
-        Point existingPoint = pointRepository.findByPoint(member.getMno())
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원의 포인트 발생 내역이 없습니다."));
+        Pageable pageable = PageRequest.of(0,1);
+        Point existingPoint = pointRepository.findByPoint(member.getMno(), pageable).get(0);
 
         Integer existingAccumAmt = existingPoint.getAccumAmt();
         Integer existingBalAmt = existingPoint.getBalAmt();

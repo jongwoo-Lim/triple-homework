@@ -43,8 +43,9 @@ public class Point extends BaseEntity {
             String occurCause, Review review){
 
         pointId.increaseOccurSeq();
+        PointId build = PointId.createPointId(pointId.getMno(), pointId.getOccurSeq());
         return Point.builder()
-                .pointId(pointId)
+                .pointId(build)
                 .pointCode(pointCode)
                 .accumAmt(accumAmt)
                 .balAmt(balAmt)
