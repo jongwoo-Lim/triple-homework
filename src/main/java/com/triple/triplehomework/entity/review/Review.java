@@ -6,6 +6,8 @@ import com.triple.triplehomework.entity.BaseEntity;
 import com.triple.triplehomework.entity.place.Place;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -16,6 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
+@DynamicInsert
 @ToString(exclude = "place")
 public class Review extends BaseEntity {
 
@@ -31,6 +34,11 @@ public class Review extends BaseEntity {
     private String content;
     @Column(columnDefinition = "BINARY(16)")
     private UUID userId;
+
+    // 삭제 여부
+    @Column(name = "remove_yn")
+    @ColumnDefault("'N'")
+    private String removeYn = "N";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")

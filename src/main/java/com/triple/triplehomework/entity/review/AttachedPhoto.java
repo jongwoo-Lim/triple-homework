@@ -3,6 +3,8 @@ package com.triple.triplehomework.entity.review;
 import com.triple.triplehomework.entity.BaseEntity;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Getter
+@DynamicInsert
 @ToString
 public class AttachedPhoto extends BaseEntity {
 
@@ -25,6 +28,11 @@ public class AttachedPhoto extends BaseEntity {
 
     @Column(columnDefinition = "BINARY(16)")
     private UUID photoId;
+
+    // 삭제 여부
+    @Column(name = "remove_yn")
+    @ColumnDefault("'N'")
+    private String removeYn = "N";
 
     public static AttachedPhoto createAttachedPhoto(AttachedPhotoId attachedPhotoId, UUID photoId){
         attachedPhotoId.increasePhotoNo();
