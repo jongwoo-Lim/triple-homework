@@ -33,7 +33,7 @@ public class Review extends BaseEntity {
     private UUID userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pno")
+    @JoinColumn(name = "place_id")
     private Place place;
 
     @PrePersist

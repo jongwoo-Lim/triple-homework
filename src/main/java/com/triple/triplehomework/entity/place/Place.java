@@ -3,10 +3,7 @@ package com.triple.triplehomework.entity.place;
 import com.fasterxml.uuid.Generators;
 import com.triple.triplehomework.entity.BaseEntity;
 import com.triple.triplehomework.entity.member.Member;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -15,7 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "PLACE")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString(exclude = "member")
 public class Place extends BaseEntity {
