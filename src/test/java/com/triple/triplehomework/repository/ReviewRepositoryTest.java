@@ -6,10 +6,32 @@ import com.triple.triplehomework.entity.place.Place;
 import com.triple.triplehomework.entity.review.Review;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
+
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 class ReviewRepositoryTest extends BaseRepositoryTest {
+
+    @Test
+    @DisplayName("유저가 첫 리뷰 작성인 지 체크 테스트")
+    public void existsReviewByPlace_test() throws Exception{
+        // Given
+        Member admin = createMember();
+        Place place = createPlace(admin);
+
+        PageRequest pageable = PageRequest.of(0, 1);
+
+        // When
+        List<Place> reviews =
+                reviewRepository.existsReviewByPlace(place.getPlaceId(), pageable);
+
+        boolean isFirst = reviews.size() == 0;
+
+        // Then
+        assertThat(isFirst).isTrue();
+    }
 
     @Test
     @DisplayName("유저가 한 장소의 리뷰 0개 체크 테스트")

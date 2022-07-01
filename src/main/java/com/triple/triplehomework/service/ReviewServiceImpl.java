@@ -9,7 +9,9 @@ import com.triple.triplehomework.repository.PlaceRepository;
 import com.triple.triplehomework.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -19,9 +21,11 @@ import java.util.UUID;
 public class ReviewServiceImpl implements ReviewService{
 
     private final AttachedPhotoService photoService;
+    private final PointService pointService;
     private final ReviewRepository reviewRepository;
     private final PlaceRepository placeRepository;
 
+    @Transactional
     @Override
     public void register(ReviewRequestDto reviewRequestDto) {
 
@@ -39,19 +43,22 @@ public class ReviewServiceImpl implements ReviewService{
             throw new ReviewExistException("한 장소에 리뷰는 한 개만 작성할 수 있습니다.");
         }
 
+        // 해당 장소 첫 리뷰인지 체크
+        boolean isFirst = reviewRepository.existsReviewByPlace(place.getPlaceId(), PageRequest.of(0, 1)).size() == 0;
+
         // 리뷰 등록
         Review review = Review.createReview(reviewRequestDto.getType(), reviewRequestDto.getAction(), reviewRequestDto.getContent(), userId, place);
         reviewRepository.save(review);
 
         // 첨부파일이 있는 경우 첨부파일 등록
-        if(reviewRequestDto.getAttachedPhotoIds().size() > 0){
+        boolean attached = reviewRequestDto.getAttachedPhotoIds().size() > 0;
+
+        if(attached){
             photoService.register(review.getReviewId(), reviewRequestDto.getAttachedPhotoIds());
         }
 
-
-        // 1자 이상 텍스트 작성시 포인트 1점
-        // 1장 이상 사진 첨부시 포인트 1점
-        // 특정 장소 첫 리뷰 작성시 포인트 1점
+        // 포인트 적립
+        pointService.register(userId, review.getReviewId(), attached, isFirst);
     }
 
     @Override

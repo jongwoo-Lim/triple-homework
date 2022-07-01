@@ -1,15 +1,18 @@
 package com.triple.triplehomework.service;
 
 import com.triple.triplehomework.common.code.ReviewActionCode;
+import com.triple.triplehomework.dto.ReviewRequestDto;
 import com.triple.triplehomework.entity.member.Member;
 import com.triple.triplehomework.entity.place.Place;
 import com.triple.triplehomework.entity.review.Review;
 import com.triple.triplehomework.repository.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest
@@ -39,6 +42,33 @@ public class BaseServiceTest {
 
     @Autowired
     protected TotalPointRepository totalPointRepository;
+
+    protected ReviewRequestDto reviewRequestDto;
+    protected Member member;
+    @BeforeEach
+    public void setUp(){
+        Member admin = createMember();
+        Place place = createPlace(admin);
+        member = createMember();
+
+        reviewRequestDto = ReviewRequestDto.builder()
+                .type("REVIEW")
+                .action(ReviewActionCode.ADD)
+                .content("review test....")
+                .attachedPhotoIds(List.of("e4d1a64e-a531-46de-88d0-ff0ed70c0bb8", "afb0cef2-851d-4a50-bb07-9cc15cbdc332"))
+                .userId(member.getUserId().toString())
+                .placeId(place.getPlaceId().toString())
+                .build();
+    }
+
+    @AfterEach
+    public void deleteAll(){
+        pointRepository.deleteAll();
+        attachedPhotoRepository.deleteAll();
+        reviewRepository.deleteAll();
+        placeRepository.deleteAll();
+        memberRepository.deleteAll();
+    }
 
     /**
      * 테스트용 회원
