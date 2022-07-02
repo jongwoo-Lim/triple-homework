@@ -32,4 +32,8 @@ public class TotalPoint extends BaseEntity {
                 .deductTotalAmt(deductTotalAmt)
                 .build();
     }
+
+    public void increaseEarnTotalAmt(){
+        this.earnTotalAmt++;
+    }
 }

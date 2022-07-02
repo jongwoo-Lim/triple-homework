@@ -28,17 +28,20 @@ public class Place extends BaseEntity {
 
     @PrePersist
     public void createPlaceId() {
-        //sequential uuid
-        UUID uuid = Generators.timeBasedGenerator().generate();
-        String[] uuidArr = uuid.toString().split("-");
-        String uuidStr = uuidArr[2]+uuidArr[1]+uuidArr[0]+uuidArr[3]+uuidArr[4];
-        StringBuffer sb = new StringBuffer(uuidStr);
-        sb.insert(8, "-");
-        sb.insert(13, "-");
-        sb.insert(18, "-");
-        sb.insert(23, "-");
-        uuid = UUID.fromString(sb.toString());
-        this.placeId = uuid;
+        if(this.placeId == null){
+            //sequential uuid
+            UUID uuid = Generators.timeBasedGenerator().generate();
+            String[] uuidArr = uuid.toString().split("-");
+            String uuidStr = uuidArr[2]+uuidArr[1]+uuidArr[0]+uuidArr[3]+uuidArr[4];
+            StringBuffer sb = new StringBuffer(uuidStr);
+            sb.insert(8, "-");
+            sb.insert(13, "-");
+            sb.insert(18, "-");
+            sb.insert(23, "-");
+            uuid = UUID.fromString(sb.toString());
+            this.placeId = uuid;
+        }
+
     }
 
     public static Place createPlace(Member member){
@@ -48,7 +51,8 @@ public class Place extends BaseEntity {
     }
 
     @Builder
-    public Place(Member member) {
+    public Place(UUID placeId, Member member) {
+        this.placeId = placeId;
         this.member = member;
     }
 

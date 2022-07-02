@@ -5,10 +5,12 @@ import com.triple.triplehomework.common.code.PointOccurCode;
 import com.triple.triplehomework.entity.member.Member;
 import com.triple.triplehomework.entity.point.Point;
 import com.triple.triplehomework.entity.point.PointId;
+import com.triple.triplehomework.entity.point.TotalPoint;
 import com.triple.triplehomework.entity.review.Review;
 import com.triple.triplehomework.repository.MemberRepository;
 import com.triple.triplehomework.repository.PointRepository;
 import com.triple.triplehomework.repository.ReviewRepository;
+import com.triple.triplehomework.repository.TotalPointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,15 +23,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PointServiceImpl implements PointService{
 
-    private final PointRepository pointRepository;
     private final MemberRepository memberRepository;
     private final ReviewRepository reviewRepository;
+    private final PointRepository pointRepository;
+    private final TotalPointRepository totalPointRepository;
 
     @Transactional
     @Override
     public void register(UUID userId, UUID reviewId, boolean attached, boolean bonus) {
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+
+        TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
+                .orElseGet(() -> TotalPoint.createTotalPoint(member.getMno(), 0, 0));
 
         Review review = reviewRepository.getReferenceById(reviewId);
 
@@ -43,42 +49,50 @@ public class PointServiceImpl implements PointService{
 
             PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
             Point savedPoint = earnReviewPoint(review, pointId, point, PointOccurCode.REVIEW);
+            totalPoint.increaseEarnTotalAmt();
 
             // 1장 이상 사진 첨부시 포인트 1점 && 보너스 점수 1점
             if(attached && bonus){
-                earnPhotoAndBonusPoint(review, pointId, savedPoint);
+                earnPhotoAndBonusPoint(review, pointId, savedPoint, totalPoint);
                 return;
             }
 
             if(attached){
                 // 1장 이상 사진 첨부시 포인트 1점
                 eranPhotoPoint(review, pointId, savedPoint, PointOccurCode.PHOTO);
+                totalPoint.increaseEarnTotalAmt();
             }
             if(bonus){
                 // 특정 장소 첫 리뷰 작성시 포인트 1점
                 earnBonusPoint(review, pointId, savedPoint, PointOccurCode.BONUS);
+                totalPoint.increaseEarnTotalAmt();
             }
         }else{
             // 기존 이력이 존재하지 않는 경우
             PointId pointId = PointId.createPointId(member.getMno(), 0L);
             Point savedPoint = earnReviewPoint(review, pointId, null, PointOccurCode.REVIEW);
+            totalPoint.increaseEarnTotalAmt();
 
-            // 1장 이상 사진 첨부시 포인트 1점 && 보너즈 점수 1점
+            // 1장 이상 사진 첨부시 포인트 1점 && 보너스 점수 1점
             if(attached && bonus){
-                earnPhotoAndBonusPoint(review, pointId, savedPoint);
+                earnPhotoAndBonusPoint(review, pointId, savedPoint, totalPoint);
                 return;
             }
 
             if(attached){
                 // 1장 이상 사진 첨부시 포인트 1점
                 eranPhotoPoint(review, pointId, savedPoint, PointOccurCode.PHOTO);
+                totalPoint.increaseEarnTotalAmt();
             }
 
             if(bonus){
                 // 특정 장소 첫 리뷰 작성시 포인트 1점
                 earnBonusPoint(review, pointId, savedPoint, PointOccurCode.BONUS);
+                totalPoint.increaseEarnTotalAmt();
             }
         }
+
+        totalPointRepository.save(totalPoint);
     }
 
 
@@ -130,17 +144,22 @@ public class PointServiceImpl implements PointService{
 
     /**
      * 첨부파일 && 보너스 점수 적립
+     * 총 적립금액 적립
      * @param review
      * @param pointId
      * @param savedPoint
      */
-    private void earnPhotoAndBonusPoint(Review review, PointId pointId, Point savedPoint) {
+    private void earnPhotoAndBonusPoint(Review review, PointId pointId, Point savedPoint, TotalPoint totalPoint) {
         Point existingAttachedReviewPoint =
                 Point.createPoint(pointId, PointCode.EARN, 1, savedPoint.getBalAmt() + 1, PointOccurCode.PHOTO.getOccurCause(), review);
 
         Point savedAttachedPoint = pointRepository.save(existingAttachedReviewPoint);
+        totalPoint.increaseEarnTotalAmt();
 
         earnBonusPoint(review, pointId, savedAttachedPoint, PointOccurCode.BONUS);
+        totalPoint.increaseEarnTotalAmt();
+
+        totalPointRepository.save(totalPoint);
     }
 
 
