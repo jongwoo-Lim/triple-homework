@@ -129,7 +129,7 @@ class PointRepositoryTest extends BaseRepositoryTest{
     private void createAttachedPhoto(Review review){
         UUID photoId1 = UUID.randomUUID();
 
-        AttachedPhotoId attachedPhotoId = attachedPhotoRepository.findByPhotoId(review)
+        AttachedPhotoId attachedPhotoId = attachedPhotoRepository.findByReview(review)
                 .orElseGet(() -> AttachedPhotoId.createAttachedPhotoId(review, 0L));
 
         AttachedPhoto attachedPhoto1 = AttachedPhoto.createAttachedPhoto(attachedPhotoId, photoId1);

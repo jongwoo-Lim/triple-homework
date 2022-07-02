@@ -8,6 +8,7 @@ import com.triple.triplehomework.entity.review.Review;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +16,40 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 class AttachedPhotoRepositoryTest extends BaseRepositoryTest{
 
+    @Test
+    @DisplayName("첨부파일 ID 조회 테스트")
+    public void findByPhotoIds() throws Exception{
+        //Given
+        Member admin = createMember();
+        Place place = createPlace(admin);
+        Member member = createMember();
+        Review review = createReview(member, place);
+        Review savedReview = reviewRepository.save(review);
+
+        List<UUID> photoIds = new ArrayList<>();
+        List<AttachedPhoto> photos = new ArrayList<>();
+
+        for(int i=0; i<3; i++){
+            photoIds.add(UUID.randomUUID());
+        }
+
+        AttachedPhotoId attachedPhotoId = attachedPhotoRepository.findByReview(savedReview)
+                .orElseGet(() -> AttachedPhotoId.createAttachedPhotoId(review, 0L));
+
+
+        for(UUID photo : photoIds){
+            final AttachedPhoto attachedPhoto = AttachedPhoto.createAttachedPhoto(attachedPhotoId, photo);
+            photos.add(attachedPhoto);
+        }
+
+        // When
+        attachedPhotoRepository.saveAll(photos);
+        //When
+        List<AttachedPhoto> existingPhotos = attachedPhotoRepository.findByPhotoIds(savedReview, photoIds);
+
+        //ThenR
+        assertThat(existingPhotos.size()).isEqualTo(photoIds.size());
+    }
     @Test
     @DisplayName("리뷰 첨부파일 등록 테스트")
     public void createAttachedPhoto_test() throws Exception{
@@ -30,7 +65,7 @@ class AttachedPhotoRepositoryTest extends BaseRepositoryTest{
         UUID photoId2 = UUID.randomUUID();
         UUID photoId3 = UUID.randomUUID();
 
-        AttachedPhotoId attachedPhotoId = attachedPhotoRepository.findByPhotoId(savedReview)
+        AttachedPhotoId attachedPhotoId = attachedPhotoRepository.findByReview(savedReview)
                 .orElseGet(() -> AttachedPhotoId.createAttachedPhotoId(review, 0L));
 
 
