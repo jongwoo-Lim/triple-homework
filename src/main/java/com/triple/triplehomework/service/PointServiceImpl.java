@@ -59,7 +59,7 @@ public class PointServiceImpl implements PointService{
 
             if(attached){
                 // 1장 이상 사진 첨부시 포인트 1점
-                eranPhotoPoint(review, pointId, savedPoint, PointOccurCode.PHOTO);
+                earnPhotoPoint(review, pointId, savedPoint, PointOccurCode.PHOTO);
                 totalPoint.increaseEarnTotalAmt();
             }
             if(bonus){
@@ -81,7 +81,7 @@ public class PointServiceImpl implements PointService{
 
             if(attached){
                 // 1장 이상 사진 첨부시 포인트 1점
-                eranPhotoPoint(review, pointId, savedPoint, PointOccurCode.PHOTO);
+                earnPhotoPoint(review, pointId, savedPoint, PointOccurCode.PHOTO);
                 totalPoint.increaseEarnTotalAmt();
             }
 
@@ -115,8 +115,47 @@ public class PointServiceImpl implements PointService{
         PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
 
         // 사진 첨부시 포인트 1점
-        eranPhotoPoint(review, pointId, point, PointOccurCode.PHOTO);
+        earnPhotoPoint(review, pointId, point, PointOccurCode.PHOTO);
         totalPoint.increaseEarnTotalAmt();
+    }
+
+    @Transactional
+    @Override
+    public void withdrawPhotoPoint(UUID userId, UUID reviewId) {
+        // 유저 조회
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+
+        // 총 적립금액 조회
+        TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
+                .orElseGet(() -> TotalPoint.createTotalPoint(member.getMno(), 0, 0));
+
+        Review review = reviewRepository.getReferenceById(reviewId);
+
+        // 포인트 최신 내역 조회
+        Pageable pageable = PageRequest.of(0,1);
+        Point point = pointRepository.findByPoint(member.getMno(), pageable).get(0);
+        PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
+
+        // 포인트 1점 회수
+        deductPhotoPoint(review, pointId, point, PointOccurCode.PHOTO_ALL_REMOVED);
+        totalPoint.increaseDeductTotalAmt();
+    }
+
+    /**
+     * 사진 삭제시 포인트 회수
+     * @param review
+     * @param pointId
+     * @param point
+     * @param occurCode
+     */
+    private void deductPhotoPoint(Review review, PointId pointId, Point point, PointOccurCode occurCode) {
+
+        if(point != null && point.getBalAmt() != null){
+            Point photoPoint =
+                    Point.createPoint(pointId, PointCode.DEDUCT, 1, point.getBalAmt() - 1, occurCode.getOccurCause(), review);
+            pointRepository.save(photoPoint);
+        }
     }
 
 
@@ -147,7 +186,7 @@ public class PointServiceImpl implements PointService{
      * @param pointId
      * @param savedPoint
      */
-    private void eranPhotoPoint(Review review, PointId pointId, Point savedPoint, PointOccurCode occurCode) {
+    private void earnPhotoPoint(Review review, PointId pointId, Point savedPoint, PointOccurCode occurCode) {
         Point existingAttachedReviewPoint =
                 Point.createPoint(pointId, PointCode.EARN, 1, savedPoint.getBalAmt() + 1, occurCode.getOccurCause(), review);
         pointRepository.save(existingAttachedReviewPoint);

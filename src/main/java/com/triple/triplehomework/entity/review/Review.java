@@ -72,6 +72,15 @@ public class Review extends BaseEntity {
         }
     }
 
+
+    /**
+     * 리뷰 삭제
+     * 삭제 여부 컬럼 Y
+     */
+    public void delete() {
+        this.removeYn = "Y";
+    }
+
     @Builder
     public Review(String content, UUID userId, Place place) {
         this.content = content;
@@ -91,4 +100,5 @@ public class Review extends BaseEntity {
     public int hashCode() {
         return getClass().hashCode();
     }
+
 }

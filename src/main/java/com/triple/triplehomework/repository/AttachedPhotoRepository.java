@@ -10,24 +10,37 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface AttachedPhotoRepository extends JpaRepository<AttachedPhoto, AttachedPhotoId> {
 
     @Query("select p.attachedPhotoId " +
             "from AttachedPhoto p " +
             "where p.attachedPhotoId.review = :review ")
-    Optional<AttachedPhotoId> findByPhotoId(@Param("review") Review review);
+    Optional<AttachedPhotoId> findByReview(@Param("review") Review review);
 
 
     @Query("select p " +
             "from AttachedPhoto p " +
             "where p.attachedPhotoId.review = :review ")
-    List<AttachedPhoto> findByPhoto(@Param("review") Review review, Pageable pageable);
+    List<AttachedPhoto> findByReview(@Param("review") Review review, Pageable pageable);
 
 
     @Query("select p " +
             "from AttachedPhoto p " +
             "where p.attachedPhotoId.review = :review " +
             "order by p.regDate desc")
-    List<AttachedPhoto> findByPhotoAndDesc(@Param("review") Review review, Pageable pageable);
+    List<AttachedPhoto> findByReviewAndDesc(@Param("review") Review review, Pageable pageable);
+
+    @Query("select p " +
+            "from AttachedPhoto p " +
+            "where p.attachedPhotoId.review = :review " +
+            "and p.photoId in :photoIds ")
+    List<AttachedPhoto> findByPhotoIds(@Param("review") Review review, @Param("photoIds") List<UUID> photoIds);
+
+    @Query("select count(p) " +
+            "from AttachedPhoto p " +
+            "where p.attachedPhotoId.review = :review " +
+            "and p.removeYn = :removeYn")
+    int countByReview(@Param("review") Review review, @Param("removeYn") String removeYn);
 }

@@ -36,4 +36,8 @@ public class TotalPoint extends BaseEntity {
     public void increaseEarnTotalAmt(){
         this.earnTotalAmt++;
     }
+
+    public void increaseDeductTotalAmt(){
+        this.deductTotalAmt++;
+    }
 }

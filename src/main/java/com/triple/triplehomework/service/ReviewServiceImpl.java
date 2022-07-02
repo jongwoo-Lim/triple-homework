@@ -13,9 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -63,6 +65,7 @@ public class ReviewServiceImpl implements ReviewService{
         pointService.register(userId, review.getReviewId(), attached, isFirst);
     }
 
+    @Transactional
     @Override
     public ReviewResponseDto modify(ReviewRequestDto reviewRequestDto) {
 
@@ -99,6 +102,40 @@ public class ReviewServiceImpl implements ReviewService{
 
     @Override
     public boolean remove(ReviewRequestDto reviewRequestDto) {
-        return false;
+
+        boolean result;
+        UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
+        UUID userId = UUID.fromString(reviewRequestDto.getUserId());
+        String removeYn = "N";
+
+        Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, removeYn)
+                .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰는 존재하지 않습니다."));
+
+        String removePhotoYn = reviewRequestDto.getRemovePhotoYn();
+        boolean removePhoto = StringUtils.hasText(removePhotoYn) && removePhotoYn.equalsIgnoreCase("Y");
+
+        List<UUID> photoIds = reviewRequestDto.getAttachedPhotoIds()
+                .stream()
+                .map(UUID::fromString).collect(Collectors.toList());
+
+        if(removePhoto){
+
+            // 첨부 파일 삭제시
+            boolean removedAll = photoService.removeAll(reviewId, photoIds);
+            // 모두 삭제 시 1점 회수
+            if(removedAll){
+                // 포인트 차감
+                pointService.withdrawPhotoPoint(userId, reviewId);
+            }
+
+            result = true;
+        }else{
+            // 리뷰 삭제시
+            // 해당 리뷰로 부여된 점수 회수
+            review.delete();
+            result = true;
+        }
+
+        return result;
     }
 }

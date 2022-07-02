@@ -22,4 +22,5 @@ public class ReviewRequestDto {
     private List<String> attachedPhotoIds = Collections.emptyList();
     private String userId;
     private String placeId;
+    private String removePhotoYn; // Y: 사진만 삭제 N: 리뷰삭제
 }

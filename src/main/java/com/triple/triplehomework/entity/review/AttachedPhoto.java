@@ -45,6 +45,10 @@ public class AttachedPhoto extends BaseEntity {
                 .build();
     }
 
+    public void delete(){
+        this.removeYn = "Y";
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

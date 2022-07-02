@@ -34,7 +34,7 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
         // 기존 첨부파일이 있는 경우
         if(isAttached(review)){
             Pageable pageable = PageRequest.of(0, 1);
-            AttachedPhoto point = photoRepository.findByPhotoAndDesc(review, pageable).get(0);
+            AttachedPhoto point = photoRepository.findByReviewAndDesc(review, pageable).get(0);
             attachedPhotoId = point.getAttachedPhotoId();
         }else{
             attachedPhotoId = AttachedPhotoId.createAttachedPhotoId(review, 0L);
@@ -57,15 +57,27 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
 
         Review review = reviewRepository.getReferenceById(reviewId);
         Pageable pageable = PageRequest.of(0, 1);
-        List<AttachedPhoto> photos = photoRepository.findByPhoto(review, pageable);
+        List<AttachedPhoto> photos = photoRepository.findByReview(review, pageable);
 
         return photos.size() > 0;
     }
 
+    @Transactional
     @Override
-    public void remove() {
+    public boolean removeAll(UUID reviewId, List<UUID> photoIds) {
 
+        Review review = reviewRepository.getReferenceById(reviewId);
+        List<AttachedPhoto> photos = photoRepository.findByPhotoIds(review, photoIds);
+
+        for(AttachedPhoto photo : photos){
+            // 첨부파일 삭제
+            photo.delete();
+        }
+
+        int count = photoRepository.countByReview(review, "N");
+        return count == 0;
     }
+
 
     /**
      * 해당 리뷰의 첨부파일이 존재한 지 체크
@@ -74,7 +86,7 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
      */
     private boolean isAttached(Review review){
         Pageable pageable = PageRequest.of(0, 1);
-        List<AttachedPhoto> photos = photoRepository.findByPhoto(review, pageable);
+        List<AttachedPhoto> photos = photoRepository.findByReview(review, pageable);
 
         return photos.size() > 0;
     }
