@@ -5,6 +5,7 @@ import com.triple.triplehomework.dto.ReviewResponseDto;
 import com.triple.triplehomework.entity.place.Place;
 import com.triple.triplehomework.entity.review.Review;
 import com.triple.triplehomework.exception.ReviewExistException;
+import com.triple.triplehomework.exception.ReviewNotFoundException;
 import com.triple.triplehomework.repository.PlaceRepository;
 import com.triple.triplehomework.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -47,7 +49,7 @@ public class ReviewServiceImpl implements ReviewService{
         boolean isFirst = reviewRepository.existsReviewByPlace(place.getPlaceId(), PageRequest.of(0, 1)).size() == 0;
 
         // 리뷰 등록
-        Review review = Review.createReview(reviewRequestDto.getType(), reviewRequestDto.getAction(), reviewRequestDto.getContent(), userId, place);
+        Review review = Review.createReview(reviewRequestDto.getContent(), userId, place);
         reviewRepository.save(review);
 
         // 첨부파일이 있는 경우 첨부파일 등록
@@ -63,6 +65,35 @@ public class ReviewServiceImpl implements ReviewService{
 
     @Override
     public ReviewResponseDto modify(ReviewRequestDto reviewRequestDto) {
+
+        UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
+        String removeYn = "N";
+
+        Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, removeYn)
+                .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰는 존재하지 않습니다."));
+
+        // 리뷰 내용 수정
+        review.updateContent(reviewRequestDto.getContent());
+
+        List<String> photoIds = reviewRequestDto.getAttachedPhotoIds();
+
+        // 글만 작성한 리뷰에 사진 추가시 1점 적립
+        if(photoIds.size() > 0){
+
+            boolean attached = photoService.isAttached(review.getReviewId());
+
+            // 첨부파일 추가
+            photoService.register(reviewId, photoIds);
+
+            if(!attached){
+                // 포인트 적립
+                pointService.registerPhotoPoint(review.getUserId(), review.getReviewId());
+
+            }
+
+        }
+
+
         return null;
     }
 

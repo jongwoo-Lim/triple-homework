@@ -95,6 +95,30 @@ public class PointServiceImpl implements PointService{
         totalPointRepository.save(totalPoint);
     }
 
+    @Transactional
+    @Override
+    public void registerPhotoPoint(UUID userId, UUID reviewId) {
+
+        // 유저 조회
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+
+        // 총 적립금액 조회
+        TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
+                .orElseGet(() -> TotalPoint.createTotalPoint(member.getMno(), 0, 0));
+
+        Review review = reviewRepository.getReferenceById(reviewId);
+
+        // 포인트 최신 내역 조회
+        Pageable pageable = PageRequest.of(0,1);
+        Point point = pointRepository.findByPoint(member.getMno(), pageable).get(0);
+        PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
+
+        // 사진 첨부시 포인트 1점
+        eranPhotoPoint(review, pointId, point, PointOccurCode.PHOTO);
+        totalPoint.increaseEarnTotalAmt();
+    }
+
 
     /**
      * 리뷰 포인트 적립
