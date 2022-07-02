@@ -7,6 +7,7 @@ import com.triple.triplehomework.repository.AttachedPhotoRepository;
 import com.triple.triplehomework.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
     private final ReviewRepository reviewRepository;
     private final AttachedPhotoRepository photoRepository;
 
+    @Transactional
     @Override
     public void register(UUID reviewId, List<String> photoIds) {
         List<AttachedPhoto> photos = new ArrayList<>();
