@@ -12,6 +12,8 @@ import com.triple.triplehomework.repository.PointRepository;
 import com.triple.triplehomework.repository.ReviewRepository;
 import com.triple.triplehomework.repository.TotalPointRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class PointServiceImpl implements PointService{
 
     private final MemberRepository memberRepository;
@@ -28,9 +32,11 @@ public class PointServiceImpl implements PointService{
     private final PointRepository pointRepository;
     private final TotalPointRepository totalPointRepository;
 
-    @Transactional
     @Override
     public void register(UUID userId, UUID reviewId, boolean attached, boolean bonus) {
+
+        log.info("point register...");
+
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
 
@@ -95,9 +101,10 @@ public class PointServiceImpl implements PointService{
         totalPointRepository.save(totalPoint);
     }
 
-    @Transactional
     @Override
     public void registerPhotoPoint(UUID userId, UUID reviewId) {
+
+        log.info("photo point register...");
 
         // 유저 조회
         Member member = memberRepository.findByUserId(userId)
@@ -119,9 +126,12 @@ public class PointServiceImpl implements PointService{
         totalPoint.increaseEarnTotalAmt();
     }
 
-    @Transactional
+
     @Override
     public void withdrawPhotoPoint(UUID userId, UUID reviewId) {
+
+        log.info("photo point withdraw...");
+
         // 유저 조회
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
@@ -140,6 +150,53 @@ public class PointServiceImpl implements PointService{
         // 포인트 1점 회수
         deductPhotoPoint(review, pointId, point, PointOccurCode.PHOTO_ALL_REMOVED);
         totalPoint.increaseDeductTotalAmt();
+    }
+
+    @Override
+    public void withdrawReviewPoint(UUID userId, UUID reviewId) {
+
+        log.info("review point withdraw...");
+        // 유저 조회
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+
+        // 총 적립금액 조회
+        TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
+                .orElseGet(() -> TotalPoint.createTotalPoint(member.getMno(), 0, 0));
+
+        Review review = reviewRepository.getReferenceById(reviewId);
+
+        // 리뷰로 적립된 포인트 및 차감된 포인트 조회
+        int earnTotalPoint = ObjectUtils.defaultIfNull(pointRepository.countEarnPointByReview(review, PointCode.EARN),0);
+        int deductTotalPoint = ObjectUtils.defaultIfNull(pointRepository.countDeductPointByReview(review, PointCode.DEDUCT),0);
+
+        // 포인트 최신 내역 조회
+        Pageable pageable = PageRequest.of(0,1);
+        Point point = pointRepository.findByPoint(member.getMno(), pageable).get(0);
+        PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
+
+        int deductPoint = earnTotalPoint - deductTotalPoint;
+
+        // 리뷰로 부여받은 남은 포인트 회수
+        deductReviewPoint(review, pointId, point, deductPoint, PointOccurCode.REVIEW_REMOVED);
+        totalPoint.increaseDeductTotalAmt(deductPoint);
+    }
+
+    /**
+     * 리뷰 삭제시 부여받은 남은 포인트 회수
+     * @param review
+     * @param pointId
+     * @param point
+     * @param occurCode
+     */
+    private void deductReviewPoint(Review review, PointId pointId, Point point, int deductPoint, PointOccurCode occurCode) {
+
+        int balAmt = ObjectUtils.defaultIfNull(point.getBalAmt(),0);
+
+        Point reviewPoint =
+                Point.createPoint(pointId, PointCode.DEDUCT, deductPoint, balAmt - deductPoint, occurCode.getOccurCause(), review);
+
+        pointRepository.save(reviewPoint);
     }
 
     /**

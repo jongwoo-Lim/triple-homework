@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class ReviewServiceImpl implements ReviewService{
 
     private final AttachedPhotoService photoService;
@@ -29,7 +30,6 @@ public class ReviewServiceImpl implements ReviewService{
     private final ReviewRepository reviewRepository;
     private final PlaceRepository placeRepository;
 
-    @Transactional
     @Override
     public void register(ReviewRequestDto reviewRequestDto) {
 
@@ -52,20 +52,19 @@ public class ReviewServiceImpl implements ReviewService{
 
         // 리뷰 등록
         Review review = Review.createReview(reviewRequestDto.getContent(), userId, place);
-        reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
 
         // 첨부파일이 있는 경우 첨부파일 등록
         boolean attached = reviewRequestDto.getAttachedPhotoIds().size() > 0;
 
         if(attached){
-            photoService.register(review.getReviewId(), reviewRequestDto.getAttachedPhotoIds());
+            photoService.register(savedReview.getReviewId(), reviewRequestDto.getAttachedPhotoIds());
         }
 
         // 포인트 적립
-        pointService.register(userId, review.getReviewId(), attached, isFirst);
+        pointService.register(userId, savedReview.getReviewId(), attached, isFirst);
     }
 
-    @Transactional
     @Override
     public ReviewResponseDto modify(ReviewRequestDto reviewRequestDto) {
 
@@ -96,18 +95,18 @@ public class ReviewServiceImpl implements ReviewService{
 
         }
 
-
         return null;
     }
 
     @Override
     public boolean remove(ReviewRequestDto reviewRequestDto) {
 
-        boolean result;
+        boolean result = false;
         UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
         UUID userId = UUID.fromString(reviewRequestDto.getUserId());
         String removeYn = "N";
 
+        // 리뷰 조회
         Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, removeYn)
                 .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰는 존재하지 않습니다."));
 
@@ -119,7 +118,6 @@ public class ReviewServiceImpl implements ReviewService{
                 .map(UUID::fromString).collect(Collectors.toList());
 
         if(removePhoto){
-
             // 첨부 파일 삭제시
             boolean removedAll = photoService.removeAll(reviewId, photoIds);
             // 모두 삭제 시 1점 회수
@@ -131,11 +129,14 @@ public class ReviewServiceImpl implements ReviewService{
             result = true;
         }else{
             // 리뷰 삭제시
-            // 해당 리뷰로 부여된 점수 회수
-            review.delete();
-            result = true;
+            // 해당 리뷰로 부여된 포인트 회수
+            boolean removedAll = photoService.removeAll(reviewId, photoIds);
+            if(removedAll){
+                review.delete();
+                pointService.withdrawReviewPoint(userId, reviewId);
+                result = true;
+            }
         }
-
         return result;
     }
 }

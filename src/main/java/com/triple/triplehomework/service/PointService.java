@@ -9,4 +9,6 @@ public interface PointService {
     void registerPhotoPoint(UUID userId, UUID reviewId);
 
     void withdrawPhotoPoint(UUID userId, UUID reviewId);
+
+    void withdrawReviewPoint(UUID userId, UUID reviewId);
 }

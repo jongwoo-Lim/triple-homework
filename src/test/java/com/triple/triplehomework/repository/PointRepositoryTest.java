@@ -1,6 +1,7 @@
 package com.triple.triplehomework.repository;
 
 import com.triple.triplehomework.common.code.PointCode;
+import com.triple.triplehomework.common.code.PointOccurCode;
 import com.triple.triplehomework.entity.member.Member;
 import com.triple.triplehomework.entity.place.Place;
 import com.triple.triplehomework.entity.point.Point;
@@ -9,17 +10,57 @@ import com.triple.triplehomework.entity.point.TotalPoint;
 import com.triple.triplehomework.entity.review.AttachedPhoto;
 import com.triple.triplehomework.entity.review.AttachedPhotoId;
 import com.triple.triplehomework.entity.review.Review;
+import org.apache.commons.lang3.ObjectUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class PointRepositoryTest extends BaseRepositoryTest{
 
+    @Test
+    @DisplayName("해당 리뷰로 부여받은 포인트 조회 테스트")
+    public void countTotal() throws Exception{
+        // Given
+        Member admin = createMember();
+        Place place = createPlace(admin);
+
+        // 유저
+        Member member = createMember();
+        // 리뷰
+        Review review = createReview(member, place);
+        Review savedReview = reviewRepository.save(review);
+
+        // 포인트
+        PointId pointId = pointRepository.findByPointId(member.getMno())
+                .orElseGet(() -> PointId.createPointId(member.getMno(), 0L));
+        List<Point> pointList = new ArrayList<>();
+        int balAmt = 0;
+        for(int i=0; i<3; i++){
+            Point point =
+                    Point.createPoint(pointId, PointCode.EARN, 1, ++balAmt, PointOccurCode.REVIEW.getOccurCause(), review);
+            pointList.add(point);
+        }
+
+        Point point =
+                Point.createPoint(pointId, PointCode.DEDUCT, 1, --balAmt, PointOccurCode.PHOTO_ALL_REMOVED.getOccurCause(), review);
+        pointList.add(point);
+        pointRepository.saveAll(pointList);
+
+        //When
+        int earnCount = ObjectUtils.defaultIfNull(pointRepository.countEarnPointByReview(savedReview, PointCode.EARN),0);
+        int deductCount = ObjectUtils.defaultIfNull(pointRepository.countDeductPointByReview(savedReview, PointCode.DEDUCT),0);
+
+
+        //Then
+        assertThat(earnCount-deductCount).isEqualTo(balAmt);
+    }
     @Test
     @DisplayName("회원 적립금 등록 테스트")
     public void createTotalPoint_test() throws Exception{
