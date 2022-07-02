@@ -1,6 +1,5 @@
 package com.triple.triplehomework.repository;
 
-import com.triple.triplehomework.common.code.ReviewActionCode;
 import com.triple.triplehomework.entity.member.Member;
 import com.triple.triplehomework.entity.place.Place;
 import com.triple.triplehomework.entity.review.Review;
@@ -24,7 +23,7 @@ class ReviewRepositoryTest extends BaseRepositoryTest {
         PageRequest pageable = PageRequest.of(0, 1);
 
         // When
-        List<Place> reviews =
+        List<Object[]> reviews =
                 reviewRepository.existsReviewByPlace(place.getPlaceId(), pageable);
 
         boolean isFirst = reviews.size() == 0;
@@ -83,6 +82,5 @@ class ReviewRepositoryTest extends BaseRepositoryTest {
         reviewRepository.findAll();
         // Then
         assertThat(savedReview.getReviewId()).isNotNull();
-        assertThat(savedReview.getAction()).isEqualTo(ReviewActionCode.ADD);
     }
 }

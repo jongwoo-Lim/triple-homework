@@ -1,6 +1,5 @@
 package com.triple.triplehomework.repository;
 
-import com.triple.triplehomework.common.code.ReviewActionCode;
 import com.triple.triplehomework.entity.member.Member;
 import com.triple.triplehomework.entity.place.Place;
 import com.triple.triplehomework.entity.review.Review;
@@ -63,6 +62,6 @@ public class BaseRepositoryTest {
     protected Review createReview(Member member, Place place){
         String type = "REVIEW";
         String content = "좋아요";
-        return Review.createReview(type, ReviewActionCode.ADD, content, member.getUserId(), place);
+        return Review.createReview(content, member.getUserId(), place);
     }
 }

@@ -96,8 +96,7 @@ public class BaseServiceTest {
      * @return
      */
     protected Review createReview(Member member, Place place){
-        String type = "REVIEW";
         String content = "좋아요";
-        return Review.createReview(type, ReviewActionCode.ADD, content, member.getUserId(), place);
+        return Review.createReview(content, member.getUserId(), place);
     }
 }

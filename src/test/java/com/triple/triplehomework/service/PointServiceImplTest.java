@@ -1,13 +1,10 @@
 package com.triple.triplehomework.service;
 
 import com.triple.triplehomework.common.code.PointCode;
-import com.triple.triplehomework.common.code.ReviewActionCode;
 import com.triple.triplehomework.entity.point.Point;
 import com.triple.triplehomework.entity.point.PointId;
 import com.triple.triplehomework.entity.review.AttachedPhoto;
 import com.triple.triplehomework.entity.review.Review;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
@@ -65,7 +62,7 @@ class PointServiceImplTest extends BaseServiceTest{
         // Then
         assertThat(reviews.size()).isGreaterThan(0);
         assertThat(reviews.get(0).getContent()).isEqualTo(content);
-        assertThat(reviews.get(0).getAction()).isEqualTo(ReviewActionCode.ADD);
+//        assertThat(reviews.get(0).getAction()).isEqualTo(ReviewActionCode.ADD);
         assertThat(reviews.get(0).getRemoveYn()).isEqualTo("N");
         assertThat(photos.size()).isEqualTo(reviewRequestDto.getAttachedPhotoIds().size());
         assertThat(photos.get(0).getRemoveYn()).isEqualTo("N");
