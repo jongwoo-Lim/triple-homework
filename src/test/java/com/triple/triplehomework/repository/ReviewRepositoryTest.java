@@ -24,7 +24,7 @@ class ReviewRepositoryTest extends BaseRepositoryTest {
 
         // When
         List<Object[]> reviews =
-                reviewRepository.existsReviewByPlace(place.getPlaceId(), pageable);
+                reviewRepository.existsReviewByPlace(place.getPlaceId(), "N", pageable);
 
         boolean isFirst = reviews.size() == 0;
 

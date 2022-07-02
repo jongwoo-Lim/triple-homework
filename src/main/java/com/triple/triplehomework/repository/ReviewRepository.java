@@ -18,8 +18,9 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     @Query("select p, r " +
             "from Place p " +
             "inner join Review r on p.placeId = r.place.placeId " +
-            "where p.placeId = :placeId ")
-    List<Object[]> existsReviewByPlace(@Param("placeId") UUID placeId, Pageable pageable);
+            "where p.placeId = :placeId " +
+            "and r.removeYn = :removeYn")
+    List<Object[]> existsReviewByPlace(@Param("placeId") UUID placeId, @Param("removeYn") String removeYn, Pageable pageable);
 
     Optional<Review> findByReviewIdAndRemoveYn(UUID reviewId, String removeYn);
 }

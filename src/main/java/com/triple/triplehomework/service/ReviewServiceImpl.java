@@ -46,7 +46,7 @@ public class ReviewServiceImpl implements ReviewService{
         }
 
         // 해당 장소 첫 리뷰인지 체크
-        boolean isFirst = reviewRepository.existsReviewByPlace(place.getPlaceId(), PageRequest.of(0, 1)).size() == 0;
+        boolean isFirst = reviewRepository.existsReviewByPlace(place.getPlaceId(), "N", PageRequest.of(0, 1)).size() == 0;
 
         // 리뷰 등록
         Review review = Review.createReview(reviewRequestDto.getContent(), userId, place);
