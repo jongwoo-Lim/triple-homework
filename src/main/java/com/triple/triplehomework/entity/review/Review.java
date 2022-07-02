@@ -1,13 +1,13 @@
 package com.triple.triplehomework.entity.review;
 
 import com.fasterxml.uuid.Generators;
-import com.triple.triplehomework.common.code.ReviewActionCode;
 import com.triple.triplehomework.entity.BaseEntity;
 import com.triple.triplehomework.entity.place.Place;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -25,11 +25,6 @@ public class Review extends BaseEntity {
     @Id
     @Column(columnDefinition = "BINARY(16)")
     private UUID reviewId;
-
-    private String type;
-
-    @Enumerated(EnumType.STRING)
-    private ReviewActionCode action;
 
     private String content;
     @Column(columnDefinition = "BINARY(16)")
@@ -59,20 +54,26 @@ public class Review extends BaseEntity {
         this.reviewId = uuid;
     }
 
-    public static Review createReview(String type, ReviewActionCode action, String content, UUID userId, Place place){
+    public static Review createReview(String content, UUID userId, Place place){
         return Review.builder()
-                .type(type)
-                .action(action)
                 .content(content)
                 .userId(userId)
                 .place(place)
                 .build();
     }
 
+    /**
+     * 리뷰 내용 수정
+     * @param content
+     */
+    public void updateContent(String content){
+        if(StringUtils.hasText(content)){
+            this.content = content;
+        }
+    }
+
     @Builder
-    public Review(String type, ReviewActionCode action, String content, UUID userId, Place place) {
-        this.type = type;
-        this.action = action;
+    public Review(String content, UUID userId, Place place) {
         this.content = content;
         this.userId = userId;
         this.place = place;
