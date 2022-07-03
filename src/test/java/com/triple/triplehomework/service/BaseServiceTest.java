@@ -45,15 +45,16 @@ public class BaseServiceTest {
 
     protected ReviewRequestDto reviewRequestDto;
     protected Member member;
+    protected Place place;
     @BeforeEach
     public void setUp(){
         Member admin = createMember();
-        Place place = createPlace(admin);
+        place = createPlace(admin);
         member = createMember();
 
         String content = "review test....";
         final List<String> photoIds = List.of("e4d1a64e-a531-46de-88d0-ff0ed70c0bb8", "afb0cef2-851d-4a50-bb07-9cc15cbdc332");
-        reviewRequestDto = createReviewRequestDto("", place, content, photoIds, ReviewActionCode.ADD);
+        reviewRequestDto = createReviewRequestDto("", place, content, photoIds, ReviewActionCode.ADD, "N");
     }
 
     @AfterEach
@@ -96,7 +97,7 @@ public class BaseServiceTest {
     }
 
 
-    protected ReviewRequestDto createReviewRequestDto(String reviewId, Place place, String content, List<String> photoIds, ReviewActionCode actionCode) {
+    protected ReviewRequestDto createReviewRequestDto(String reviewId, Place place, String content, List<String> photoIds, ReviewActionCode actionCode, String removeYn) {
         ReviewRequestDto requestDto = ReviewRequestDto.builder()
                 .type("REVIEW")
                 .action(actionCode)
@@ -105,6 +106,7 @@ public class BaseServiceTest {
                 .attachedPhotoIds(photoIds)
                 .userId(member.getUserId().toString())
                 .placeId(place.getPlaceId().toString())
+                .removePhotoYn(removeYn)
                 .build();
         return requestDto;
     }
