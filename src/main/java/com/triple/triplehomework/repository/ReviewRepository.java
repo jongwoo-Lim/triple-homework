@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
-    boolean existsReviewByUserIdAndPlace(UUID userId, Place place);
+    boolean existsReviewByUserIdAndPlaceAndRemoveYn(UUID userId, Place place, String removeYn);
 
     @Query("select p, r " +
             "from Place p " +

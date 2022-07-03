@@ -40,7 +40,8 @@ public class ReviewServiceImpl implements ReviewService{
         Place place = placeRepository.getReferenceById(placeId);
 
         UUID userId = UUID.fromString(reviewRequestDto.getUserId());
-        boolean result = reviewRepository.existsReviewByUserIdAndPlace(userId, place);
+        String removeYn = "N";
+        boolean result = reviewRepository.existsReviewByUserIdAndPlaceAndRemoveYn(userId, place, removeYn);
 
         if(result){
             // 요청한 회원은 리뷰 작성 기록이 있다
