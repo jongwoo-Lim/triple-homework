@@ -31,7 +31,7 @@ public class ReviewServiceImpl implements ReviewService{
     private final PlaceRepository placeRepository;
 
     @Override
-    public void register(ReviewRequestDto reviewRequestDto) {
+    public ReviewResponseDto register(ReviewRequestDto reviewRequestDto) {
 
         log.info("Review register...");
 
@@ -58,11 +58,14 @@ public class ReviewServiceImpl implements ReviewService{
         boolean attached = reviewRequestDto.getAttachedPhotoIds().size() > 0;
 
         if(attached){
-            photoService.register(savedReview.getReviewId(), reviewRequestDto.getAttachedPhotoIds());
+           photoService.register(savedReview.getReviewId(), reviewRequestDto.getAttachedPhotoIds());
         }
 
         // 포인트 적립
         pointService.register(userId, savedReview.getReviewId(), attached, isFirst);
+
+        List<String> photos = photoService.getPhotoIds(savedReview.getReviewId());
+        return entityToDto(review, photos);
     }
 
     @Override
@@ -90,12 +93,12 @@ public class ReviewServiceImpl implements ReviewService{
             if(!attached){
                 // 포인트 적립
                 pointService.registerPhotoPoint(review.getUserId(), review.getReviewId());
-
             }
 
         }
 
-        return null;
+        List<String> photos = photoService.getPhotoIds(reviewId);
+        return entityToDto(review, photos);
     }
 
     @Override

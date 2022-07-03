@@ -9,16 +9,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface AttachedPhotoRepository extends JpaRepository<AttachedPhoto, AttachedPhotoId> {
 
-    @Query("select p.attachedPhotoId " +
+    @Query("select p " +
             "from AttachedPhoto p " +
             "where p.attachedPhotoId.review = :review ")
-    Optional<AttachedPhotoId> findByReview(@Param("review") Review review);
-
+    List<AttachedPhoto> findByReview(@Param("review") Review review);
 
     @Query("select p " +
             "from AttachedPhoto p " +

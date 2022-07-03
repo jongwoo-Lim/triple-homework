@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -54,7 +55,7 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
         }
 
         // 첨부파일 등록
-        photoRepository.saveAll(photos);
+       photoRepository.saveAll(photos);
     }
 
     @Override
@@ -82,6 +83,18 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
 
         int count = photoRepository.countByReview(review, "N");
         return count == 0;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getPhotoIds(UUID reviewId) {
+
+        Review review = reviewRepository.getReferenceById(reviewId);
+        List<AttachedPhoto> photos = photoRepository.findByReview(review);
+
+        return photos.stream()
+                .map(p -> p.getPhotoId().toString())
+                .collect(Collectors.toList());
     }
 
 

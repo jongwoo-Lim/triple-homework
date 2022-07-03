@@ -7,6 +7,7 @@ import com.triple.triplehomework.entity.review.AttachedPhotoId;
 import com.triple.triplehomework.entity.review.Review;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +34,14 @@ class AttachedPhotoRepositoryTest extends BaseRepositoryTest{
             photoIds.add(UUID.randomUUID());
         }
 
-        AttachedPhotoId attachedPhotoId = attachedPhotoRepository.findByReview(savedReview)
-                .orElseGet(() -> AttachedPhotoId.createAttachedPhotoId(review, 0L));
+        AttachedPhotoId attachedPhotoId;
+        List<AttachedPhoto> attachedPhotos = attachedPhotoRepository.findByReviewAndDesc(savedReview, PageRequest.of(0, 1));
 
+        if(attachedPhotos != null && attachedPhotos.size()>0){
+            attachedPhotoId= attachedPhotos.get(0).getAttachedPhotoId();
+        }else{
+            attachedPhotoId = AttachedPhotoId.createAttachedPhotoId(review, 0L);
+        }
 
         for(UUID photo : photoIds){
             final AttachedPhoto attachedPhoto = AttachedPhoto.createAttachedPhoto(attachedPhotoId, photo);
@@ -65,9 +71,14 @@ class AttachedPhotoRepositoryTest extends BaseRepositoryTest{
         UUID photoId2 = UUID.randomUUID();
         UUID photoId3 = UUID.randomUUID();
 
-        AttachedPhotoId attachedPhotoId = attachedPhotoRepository.findByReview(savedReview)
-                .orElseGet(() -> AttachedPhotoId.createAttachedPhotoId(review, 0L));
+        AttachedPhotoId attachedPhotoId;
+        List<AttachedPhoto> attachedPhotos = attachedPhotoRepository.findByReviewAndDesc(savedReview, PageRequest.of(0, 1));
 
+        if(attachedPhotos != null && attachedPhotos.size()>0){
+            attachedPhotoId= attachedPhotos.get(0).getAttachedPhotoId();
+        }else{
+            attachedPhotoId = AttachedPhotoId.createAttachedPhotoId(review, 0L);
+        }
 
         AttachedPhoto attachedPhoto1 = AttachedPhoto.createAttachedPhoto(attachedPhotoId, photoId1);
         AttachedPhoto attachedPhoto2 = AttachedPhoto.createAttachedPhoto(attachedPhotoId, photoId2);

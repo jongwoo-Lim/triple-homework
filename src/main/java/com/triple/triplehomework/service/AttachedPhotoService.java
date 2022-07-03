@@ -13,4 +13,6 @@ public interface AttachedPhotoService {
 
     // 삭제
     boolean removeAll(UUID reviewId, List<UUID> photoIds);
+
+    List<String> getPhotoIds(UUID reviewId);
 }
