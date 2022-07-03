@@ -122,7 +122,7 @@ public class ReviewServiceImpl implements ReviewService{
 
         if(removePhoto){
             // 첨부 파일 삭제시
-            boolean removedAll = photoService.removeAll(reviewId, photoIds);
+            boolean removedAll = photoService.removePhotos(reviewId, photoIds);
             // 모두 삭제 시 1점 회수
             if(removedAll){
                 // 포인트 차감
@@ -133,7 +133,7 @@ public class ReviewServiceImpl implements ReviewService{
         }else{
             // 리뷰 삭제시
             // 해당 리뷰로 부여된 포인트 회수
-            boolean removedAll = photoService.removeAll(reviewId, photoIds);
+            boolean removedAll = photoService.removeAll(reviewId);
             if(removedAll){
                 review.delete();
                 pointService.withdrawReviewPoint(userId, reviewId);

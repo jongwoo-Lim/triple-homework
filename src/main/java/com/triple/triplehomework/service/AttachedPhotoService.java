@@ -12,7 +12,8 @@ public interface AttachedPhotoService {
     boolean isAttached(UUID reviewId);
 
     // 삭제
-    boolean removeAll(UUID reviewId, List<UUID> photoIds);
+    boolean removePhotos(UUID reviewId, List<UUID> photoIds);
+    boolean removeAll(UUID reviewId);
 
     List<String> getPhotoIds(UUID reviewId);
 }

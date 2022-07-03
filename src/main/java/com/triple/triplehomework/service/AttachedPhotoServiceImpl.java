@@ -70,16 +70,27 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
     }
 
     @Override
-    public boolean removeAll(UUID reviewId, List<UUID> photoIds) {
+    public boolean removePhotos(UUID reviewId, List<UUID> photoIds) {
 
-        log.info("attached photo remove...");
+        log.info("attached photos remove ...");
         Review review = reviewRepository.getReferenceById(reviewId);
         List<AttachedPhoto> photos = photoRepository.findByPhotoIds(review, photoIds);
 
-        for(AttachedPhoto photo : photos){
-            // 첨부파일 삭제
-            photo.delete();
-        }
+        // 첨부파일 삭제
+        photos.forEach(AttachedPhoto::delete);
+
+        int count = photoRepository.countByReview(review, "N");
+        return count == 0;
+    }
+
+    @Override
+    public boolean removeAll(UUID reviewId) {
+
+        log.info("attached photo remove all...");
+        Review review = reviewRepository.getReferenceById(reviewId);
+        final List<AttachedPhoto> photos = photoRepository.findByReview(review);
+
+        photos.forEach(AttachedPhoto::delete);
 
         int count = photoRepository.countByReview(review, "N");
         return count == 0;

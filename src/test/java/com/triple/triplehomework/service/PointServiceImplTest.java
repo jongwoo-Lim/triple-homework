@@ -23,6 +23,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PointServiceImplTest extends BaseServiceTest{
 
     @Test
+    @DisplayName("리뷰 삭제시 부여된 포인트 회수 테스트")
+    public void withdrawReviewPoint_test() throws Exception{
+        //Given
+        String content = "review test....";
+        ReviewResponseDto responseDto = reviewService.register(reviewRequestDto);
+        Review review = reviewRepository.getReferenceById(UUID.fromString(responseDto.getReviewId()));
+
+        ReviewRequestDto requestDto = createReviewRequestDto(responseDto.getReviewId(), place, content, Collections.emptyList() , ReviewActionCode.DELETE, "N");
+
+        int earnPoint = pointRepository.countEarnPointByReview(review, PointCode.EARN);
+        //When
+        boolean remove = reviewService.remove(requestDto);
+        int deductPoint = pointRepository.countEarnPointByReview(review, PointCode.DEDUCT);
+        int balAmt = pointRepository.findByPoint(member.getMno(), PageRequest.of(0, 1)).get(0).getBalAmt();
+
+        //Then
+        assertThat(remove).isTrue();
+        assertThat(earnPoint-deductPoint).isEqualTo(balAmt);
+        assertThat(earnPoint-deductPoint).isEqualTo(0);
+    }
+
+    @Test
     @DisplayName("해당 리뷰 사진 삭제시 포인트 1점 회수 테스트")
     public void withdrawPhotoPoint_test() throws Exception{
         //Given
