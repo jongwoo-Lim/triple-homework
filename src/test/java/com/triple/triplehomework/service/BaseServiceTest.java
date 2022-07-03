@@ -51,14 +51,9 @@ public class BaseServiceTest {
         Place place = createPlace(admin);
         member = createMember();
 
-        reviewRequestDto = ReviewRequestDto.builder()
-                .type("REVIEW")
-                .action(ReviewActionCode.ADD)
-                .content("review test....")
-                .attachedPhotoIds(List.of("e4d1a64e-a531-46de-88d0-ff0ed70c0bb8", "afb0cef2-851d-4a50-bb07-9cc15cbdc332"))
-                .userId(member.getUserId().toString())
-                .placeId(place.getPlaceId().toString())
-                .build();
+        String content = "review test....";
+        final List<String> photoIds = List.of("e4d1a64e-a531-46de-88d0-ff0ed70c0bb8", "afb0cef2-851d-4a50-bb07-9cc15cbdc332");
+        reviewRequestDto = createReviewRequestDto("", place, content, photoIds, ReviewActionCode.ADD);
     }
 
     @AfterEach
@@ -98,5 +93,19 @@ public class BaseServiceTest {
     protected Review createReview(Member member, Place place){
         String content = "좋아요";
         return Review.createReview(content, member.getUserId(), place);
+    }
+
+
+    protected ReviewRequestDto createReviewRequestDto(String reviewId, Place place, String content, List<String> photoIds, ReviewActionCode actionCode) {
+        ReviewRequestDto requestDto = ReviewRequestDto.builder()
+                .type("REVIEW")
+                .action(actionCode)
+                .reviewId(reviewId)
+                .content(content)
+                .attachedPhotoIds(photoIds)
+                .userId(member.getUserId().toString())
+                .placeId(place.getPlaceId().toString())
+                .build();
+        return requestDto;
     }
 }

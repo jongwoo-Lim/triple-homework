@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ReviewServiceImplTest extends BaseServiceTest {
 
     @Test
-    @DisplayName("리뷰 첨부파일 수정 테스트")
+    @DisplayName("리뷰 첨부파일 추가 테스트")
     public void modifyAttachedPhoto_test() throws Exception{
         //Given
         String content = "review test....";
