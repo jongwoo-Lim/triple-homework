@@ -7,6 +7,7 @@ import com.triple.triplehomework.entity.point.Point;
 import com.triple.triplehomework.entity.point.PointId;
 import com.triple.triplehomework.entity.point.TotalPoint;
 import com.triple.triplehomework.entity.review.Review;
+import com.triple.triplehomework.exception.MemberNotFoundException;
 import com.triple.triplehomework.repository.MemberRepository;
 import com.triple.triplehomework.repository.PointRepository;
 import com.triple.triplehomework.repository.ReviewRepository;
@@ -38,7 +39,7 @@ public class PointServiceImpl implements PointService{
         log.info("point register...");
 
         Member member = memberRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberNotFoundException("해당 유저는 존재하지 않습니다."));
 
         TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
                 .orElseGet(() -> TotalPoint.createTotalPoint(member.getMno(), 0, 0));
@@ -108,7 +109,7 @@ public class PointServiceImpl implements PointService{
 
         // 유저 조회
         Member member = memberRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberNotFoundException("해당 유저는 존재하지 않습니다."));
 
         // 총 적립금액 조회
         TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
@@ -134,7 +135,7 @@ public class PointServiceImpl implements PointService{
 
         // 유저 조회
         Member member = memberRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberNotFoundException("해당 유저는 존재하지 않습니다."));
 
         // 총 적립금액 조회
         TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
@@ -158,7 +159,7 @@ public class PointServiceImpl implements PointService{
         log.info("review point withdraw...");
         // 유저 조회
         Member member = memberRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저는 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberNotFoundException("해당 유저는 존재하지 않습니다."));
 
         // 총 적립금액 조회
         TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
