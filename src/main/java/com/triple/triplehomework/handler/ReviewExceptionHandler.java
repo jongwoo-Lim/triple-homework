@@ -3,6 +3,7 @@ package com.triple.triplehomework.handler;
 import com.triple.triplehomework.controller.ReviewController;
 import com.triple.triplehomework.dto.ResponseDto;
 import com.triple.triplehomework.exception.MemberNotFoundException;
+import com.triple.triplehomework.exception.PhotoExistException;
 import com.triple.triplehomework.exception.ReviewExistException;
 import com.triple.triplehomework.exception.ReviewNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ReviewExceptionHandler {
 
     private final ResponseDto responseDto;
+
+    @ExceptionHandler(PhotoExistException.class)
+    public ResponseEntity<?> photoExistException(PhotoExistException ex){
+        log.info("error message: {}", ex.getMessage());
+        return responseDto.badRequest(ex.getMessage());
+    }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> httpMessageNotReadableException(HttpMessageNotReadableException ex){

@@ -18,7 +18,30 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 class AttachedPhotoRepositoryTest extends BaseRepositoryTest{
 
     @Test
-    @DisplayName("첨부파일 ID 조회 테스트")
+    @DisplayName("해당 첨부 파일 조회 테스트")
+    public void findByPhotoId() throws Exception{
+        // Given
+        Member admin = createMember();
+        Place place = createPlace(admin);
+        Member member = createMember();
+        Review review = createReview(member, place);
+        Review savedReview = reviewRepository.save(review);
+
+        UUID photoId = UUID.randomUUID();
+
+        AttachedPhotoId attachedPhotoId = AttachedPhotoId.createAttachedPhotoId(savedReview, 0L);
+        AttachedPhoto attachedPhoto = AttachedPhoto.createAttachedPhoto(attachedPhotoId, photoId);
+        AttachedPhoto savedPhoto = attachedPhotoRepository.save(attachedPhoto);
+
+        // When
+        AttachedPhoto findPhoto = attachedPhotoRepository.findByReviewAndPhotoId(savedReview, photoId, NOT_REMOVED);
+        // Then
+        assertThat(findPhoto).isNotNull();
+        assertThat(findPhoto.getPhotoId()).isEqualTo(savedPhoto.getPhotoId());
+    }
+
+    @Test
+    @DisplayName("해당 리뷰의 첨부파일 리스트 조회 테스트")
     public void findByPhotoIds() throws Exception{
         //Given
         Member admin = createMember();

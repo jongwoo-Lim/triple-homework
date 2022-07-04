@@ -49,4 +49,13 @@ public interface AttachedPhotoRepository extends JpaRepository<AttachedPhoto, At
             "where p.attachedPhotoId.review = :review " +
             "and p.removeYn = :removeYn")
     int countByReview(@Param("review") Review review, @Param("removeYn") String removeYn);
+
+
+    @Query("select p " +
+            "from AttachedPhoto p " +
+            "where p.attachedPhotoId.review = :review " +
+            "and p.photoId = :photoId " +
+            "and p.removeYn = :removeYn ")
+    AttachedPhoto findByReviewAndPhotoId(@Param("review") Review review, @Param("photoId") UUID photoId, @Param("removeYn") String removeYn);
+
 }

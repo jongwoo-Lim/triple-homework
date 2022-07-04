@@ -3,6 +3,7 @@ package com.triple.triplehomework.service;
 import com.triple.triplehomework.entity.review.AttachedPhoto;
 import com.triple.triplehomework.entity.review.AttachedPhotoId;
 import com.triple.triplehomework.entity.review.Review;
+import com.triple.triplehomework.exception.PhotoExistException;
 import com.triple.triplehomework.repository.AttachedPhotoRepository;
 import com.triple.triplehomework.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,15 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
         // 기존 첨부파일이 있는 경우
         // 기존 첨부파일 순번 이용 삭제여부 조건절 x
         if(isAttached(review)){
+
+            // 해당 파일 photo id 존재하는 지 체크
+            for(String photoId : photoIds){
+                AttachedPhoto photo = photoRepository.findByReviewAndPhotoId(review, UUID.fromString(photoId), NOT_REMOVED);
+                if(photo != null){
+                    throw new PhotoExistException(photoId +" 파일은 이미 등록되어 있습니다.");
+                }
+            }
+
             Pageable pageable = PageRequest.of(0, 1);
             AttachedPhoto point = photoRepository.findByReviewAndDesc(review, pageable).get(0);
             attachedPhotoId = point.getAttachedPhotoId();
