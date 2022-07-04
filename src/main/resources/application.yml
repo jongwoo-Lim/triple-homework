@@ -1,21 +1,23 @@
 spring:
   datasource:
-    username: sa
-    password:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
+    username: ENC(PBXrYpi3htX+EEzspVLyNlyl8E+rBm+X3Cef2Gx1jcQ=)
+    password: ENC(ghGiAWW4zI3X2VCB2R6Fylv8pufLqfRagfeMDJEbPos=)
     hikari:
-      jdbc-url: jdbc:h2:mem:testdb
-  h2:
-    console:
-      enabled: true
+      jdbc-url: ENC(wFHjMLstnKREQt50EbvHAPGo1mVhgufbEvowDNLJMsSax31WfDswlBveOhqr2RtmwLcNVO5hznNvuLHDAJsyZpkP4Qny32TIwKi36a991/MkUgIgWRsyk6UZTFlJ8Gl01lCFtyGW1LJUKLNRlhcn/HgjBX3lsTFBd1piwdBUCI5EB5HACKaju0vC1CvQ6Yy+)
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
     show-sql: true
+
+jasypt:
+  encryptor:
+    bean: encryptBean
+    password: tripleKey
+    algorithm: PBEWithSHA256And128BitAES-CBC-BC
 
 logging:
   level:

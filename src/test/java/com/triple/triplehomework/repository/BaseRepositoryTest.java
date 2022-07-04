@@ -6,11 +6,13 @@ import com.triple.triplehomework.entity.review.Review;
 import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.UUID;
 
 @DataJpaTest
 @Disabled
+@ActiveProfiles("test")
 public class BaseRepositoryTest {
 
     @Autowired

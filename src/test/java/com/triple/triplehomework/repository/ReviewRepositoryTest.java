@@ -41,7 +41,7 @@ class ReviewRepositoryTest extends BaseRepositoryTest {
 
         Member member = createMember();
         // When
-        boolean result = reviewRepository.existsReviewByUserIdAndPlace(member.getUserId(), place);
+        boolean result = reviewRepository.existsReviewByUserIdAndPlaceAndRemoveYn(member.getUserId(), place, "N");
 
         // Then
         assertThat(result).isFalse();
@@ -59,7 +59,7 @@ class ReviewRepositoryTest extends BaseRepositoryTest {
         Review savedReview = reviewRepository.save(review);
 
         // When
-        boolean result = reviewRepository.existsReviewByUserIdAndPlace(member.getUserId(), place);
+        boolean result = reviewRepository.existsReviewByUserIdAndPlaceAndRemoveYn(member.getUserId(), place, "N");
 
         // Then
         assertThat(result).isTrue();
