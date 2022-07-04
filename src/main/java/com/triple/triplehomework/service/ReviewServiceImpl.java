@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class ReviewServiceImpl implements ReviewService{
 
+    // 삭제 여부 N
+    private static final String NOT_REMOVED = "N";
     private final AttachedPhotoService photoService;
     private final PointService pointService;
     private final ReviewRepository reviewRepository;
@@ -40,8 +42,8 @@ public class ReviewServiceImpl implements ReviewService{
         Place place = placeRepository.getReferenceById(placeId);
 
         UUID userId = UUID.fromString(reviewRequestDto.getUserId());
-        String removeYn = "N";
-        boolean result = reviewRepository.existsReviewByUserIdAndPlaceAndRemoveYn(userId, place, removeYn);
+
+        boolean result = reviewRepository.existsReviewByUserIdAndPlaceAndRemoveYn(userId, place, NOT_REMOVED);
 
         if(result){
             // 요청한 회원은 리뷰 작성 기록이 있다
@@ -49,7 +51,7 @@ public class ReviewServiceImpl implements ReviewService{
         }
 
         // 해당 장소 첫 리뷰인지 체크
-        boolean isFirst = reviewRepository.existsReviewByPlace(place.getPlaceId(), "N", PageRequest.of(0, 1)).size() == 0;
+        boolean isFirst = reviewRepository.existsReviewByPlace(place.getPlaceId(), NOT_REMOVED, PageRequest.of(0, 1)).size() == 0;
 
         // 리뷰 등록
         Review review = Review.createReview(reviewRequestDto.getContent(), userId, place);
@@ -73,9 +75,8 @@ public class ReviewServiceImpl implements ReviewService{
     public ReviewResponseDto modify(ReviewRequestDto reviewRequestDto) {
 
         UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
-        String removeYn = "N";
 
-        Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, removeYn)
+        Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, NOT_REMOVED)
                 .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰는 존재하지 않습니다."));
 
         // 리뷰 내용 수정
@@ -108,10 +109,9 @@ public class ReviewServiceImpl implements ReviewService{
         boolean result = false;
         UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
         UUID userId = UUID.fromString(reviewRequestDto.getUserId());
-        String removeYn = "N";
 
         // 리뷰 조회
-        Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, removeYn)
+        Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, NOT_REMOVED)
                 .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰는 존재하지 않습니다."));
 
         String removePhotoYn = reviewRequestDto.getRemovePhotoYn();

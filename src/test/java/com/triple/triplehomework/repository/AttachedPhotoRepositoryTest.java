@@ -51,7 +51,7 @@ class AttachedPhotoRepositoryTest extends BaseRepositoryTest{
         // When
         attachedPhotoRepository.saveAll(photos);
         //When
-        List<AttachedPhoto> existingPhotos = attachedPhotoRepository.findByPhotoIds(savedReview, photoIds);
+        List<AttachedPhoto> existingPhotos = attachedPhotoRepository.findByPhotoIds(savedReview, photoIds, NOT_REMOVED);
 
         //ThenR
         assertThat(existingPhotos.size()).isEqualTo(photoIds.size());

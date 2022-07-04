@@ -21,6 +21,7 @@ import java.util.UUID;
 @ActiveProfiles("test")
 public class BaseServiceTest {
 
+    protected static final String NOT_REMOVED = "N";
     @Autowired
     protected ReviewService reviewService;
 

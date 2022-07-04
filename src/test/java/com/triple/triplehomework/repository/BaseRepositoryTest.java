@@ -15,6 +15,8 @@ import java.util.UUID;
 @ActiveProfiles("test")
 public class BaseRepositoryTest {
 
+    protected static final String NOT_REMOVED = "N";
+
     @Autowired
     protected ReviewRepository repository;
 

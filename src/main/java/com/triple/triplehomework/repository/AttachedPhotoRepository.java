@@ -15,13 +15,20 @@ public interface AttachedPhotoRepository extends JpaRepository<AttachedPhoto, At
 
     @Query("select p " +
             "from AttachedPhoto p " +
-            "where p.attachedPhotoId.review = :review ")
-    List<AttachedPhoto> findByReview(@Param("review") Review review);
+            "where p.attachedPhotoId.review = :review " +
+            "and p.removeYn = :removeYn")
+    List<AttachedPhoto> findByReview(@Param("review") Review review, @Param("removeYn") String removeYn);
 
     @Query("select p " +
             "from AttachedPhoto p " +
             "where p.attachedPhotoId.review = :review ")
     List<AttachedPhoto> findByReview(@Param("review") Review review, Pageable pageable);
+
+    @Query("select p " +
+            "from AttachedPhoto p " +
+            "where p.attachedPhotoId.review = :review " +
+            "and p.removeYn = :removeYn")
+    List<AttachedPhoto> findByReview(@Param("review") Review review, @Param("removeYn") String removeYn, Pageable pageable);
 
 
     @Query("select p " +
@@ -33,8 +40,9 @@ public interface AttachedPhotoRepository extends JpaRepository<AttachedPhoto, At
     @Query("select p " +
             "from AttachedPhoto p " +
             "where p.attachedPhotoId.review = :review " +
+            "and p.removeYn = :removeYn " +
             "and p.photoId in :photoIds ")
-    List<AttachedPhoto> findByPhotoIds(@Param("review") Review review, @Param("photoIds") List<UUID> photoIds);
+    List<AttachedPhoto> findByPhotoIds(@Param("review") Review review, @Param("photoIds") List<UUID> photoIds, @Param("removeYn") String removeYn);
 
     @Query("select count(p) " +
             "from AttachedPhoto p " +
