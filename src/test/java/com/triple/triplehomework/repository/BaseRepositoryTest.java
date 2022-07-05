@@ -4,6 +4,7 @@ import com.triple.triplehomework.entity.member.Member;
 import com.triple.triplehomework.entity.place.Place;
 import com.triple.triplehomework.entity.review.Review;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @DataJpaTest
 @Disabled
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BaseRepositoryTest {
 
     protected static final String NOT_REMOVED = "N";

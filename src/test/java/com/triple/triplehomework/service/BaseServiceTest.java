@@ -7,8 +7,9 @@ import com.triple.triplehomework.entity.place.Place;
 import com.triple.triplehomework.entity.review.Review;
 import com.triple.triplehomework.repository.*;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @SpringBootTest
 @Disabled
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BaseServiceTest {
 
     protected static final String NOT_REMOVED = "N";
@@ -49,7 +51,8 @@ public class BaseServiceTest {
     protected ReviewRequestDto reviewRequestDto;
     protected Member member;
     protected Place place;
-    @BeforeEach
+
+    @BeforeAll
     public void setUp(){
         Member admin = createMember();
         place = createPlace(admin);
@@ -62,11 +65,10 @@ public class BaseServiceTest {
 
     @AfterEach
     public void deleteAll(){
+        totalPointRepository.deleteAll();
         pointRepository.deleteAll();
         attachedPhotoRepository.deleteAll();
         reviewRepository.deleteAll();
-        placeRepository.deleteAll();
-        memberRepository.deleteAll();
     }
 
     /**

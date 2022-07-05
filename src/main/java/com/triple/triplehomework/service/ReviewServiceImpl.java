@@ -38,27 +38,27 @@ public class ReviewServiceImpl implements ReviewService{
         log.info("Review register...");
 
         // 회원은 한 장소에 하나의 리뷰만 작성 가능
-        UUID placeId = UUID.fromString(reviewRequestDto.getPlaceId());
-        Place place = placeRepository.getReferenceById(placeId);
+        final UUID placeId = UUID.fromString(reviewRequestDto.getPlaceId());
+        final Place place = placeRepository.getReferenceById(placeId);
 
-        UUID userId = UUID.fromString(reviewRequestDto.getUserId());
+        final UUID userId = UUID.fromString(reviewRequestDto.getUserId());
 
-        boolean result = reviewRepository.existsReviewByUserIdAndPlaceAndRemoveYn(userId, place, NOT_REMOVED);
+        final boolean result = reviewRepository.existsReviewByUserIdAndPlaceAndRemoveYn(userId, place, NOT_REMOVED);
 
         if(result){
             // 요청한 회원은 리뷰 작성 기록이 있다
-            throw new ReviewExistException("한 장소에 리뷰는 한 개만 작성할 수 있습니다.");
+            throw new ReviewExistException("한 장소에 리뷰는 한 번만 작성하실 수 있습니다.");
         }
 
         // 해당 장소 첫 리뷰인지 체크
-        boolean isFirst = reviewRepository.existsReviewByPlace(place.getPlaceId(), NOT_REMOVED, PageRequest.of(0, 1)).size() == 0;
+        final boolean isFirst = reviewRepository.existsReviewByPlace(place.getPlaceId(), NOT_REMOVED, PageRequest.of(0, 1)).size() == 0;
 
         // 리뷰 등록
-        Review review = Review.createReview(reviewRequestDto.getContent(), userId, place);
-        Review savedReview = reviewRepository.save(review);
+        final Review review = Review.createReview(reviewRequestDto.getContent(), userId, place);
+        final Review savedReview = reviewRepository.save(review);
 
         // 첨부파일이 있는 경우 첨부파일 등록
-        boolean attached = reviewRequestDto.getAttachedPhotoIds().size() > 0;
+        final boolean attached = reviewRequestDto.getAttachedPhotoIds().size() > 0;
 
         if(attached){
            photoService.register(savedReview.getReviewId(), reviewRequestDto.getAttachedPhotoIds());
@@ -67,27 +67,29 @@ public class ReviewServiceImpl implements ReviewService{
         // 포인트 적립
         pointService.register(userId, savedReview.getReviewId(), attached, isFirst);
 
-        List<String> photos = photoService.getPhotoIds(savedReview.getReviewId());
+        final List<String> photos = photoService.getPhotoIds(savedReview.getReviewId());
         return entityToDto(review, photos);
     }
 
     @Override
     public ReviewResponseDto modify(ReviewRequestDto reviewRequestDto) {
 
-        UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
+        final UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
 
-        Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, NOT_REMOVED)
+        final Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, NOT_REMOVED)
                 .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰는 존재하지 않습니다."));
 
         // 리뷰 내용 수정
-        review.updateContent(reviewRequestDto.getContent());
+        if(StringUtils.hasText(reviewRequestDto.getContent())){
+            review.updateContent(reviewRequestDto.getContent());
+        }
 
-        List<String> photoIds = reviewRequestDto.getAttachedPhotoIds();
+        final List<String> photoIds = reviewRequestDto.getAttachedPhotoIds();
 
         // 글만 작성한 리뷰에 사진 추가시 1점 적립
-        if(photoIds.size() > 0){
+        if(photoIds != null && photoIds.size() > 0){
 
-            boolean attached = photoService.isAttached(review.getReviewId());
+            final boolean attached = photoService.isAttached(review.getReviewId());
 
             // 첨부파일 추가
             photoService.register(reviewId, photoIds);
@@ -96,10 +98,9 @@ public class ReviewServiceImpl implements ReviewService{
                 // 포인트 적립
                 pointService.registerPhotoPoint(review.getUserId(), review.getReviewId());
             }
-
         }
 
-        List<String> photos = photoService.getPhotoIds(reviewId);
+        final List<String> photos = photoService.getPhotoIds(reviewId);
         return entityToDto(review, photos);
     }
 
@@ -107,23 +108,23 @@ public class ReviewServiceImpl implements ReviewService{
     public boolean remove(ReviewRequestDto reviewRequestDto) {
 
         boolean result = false;
-        UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
-        UUID userId = UUID.fromString(reviewRequestDto.getUserId());
+        final UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
+        final UUID userId = UUID.fromString(reviewRequestDto.getUserId());
 
         // 리뷰 조회
-        Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, NOT_REMOVED)
+        final Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, NOT_REMOVED)
                 .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰는 존재하지 않습니다."));
 
-        String removePhotoYn = reviewRequestDto.getRemovePhotoYn();
-        boolean removePhoto = StringUtils.hasText(removePhotoYn) && removePhotoYn.equalsIgnoreCase("Y");
+        final String removePhotoYn = reviewRequestDto.getRemovePhotoYn();
+        final boolean removePhoto = StringUtils.hasText(removePhotoYn) && removePhotoYn.equalsIgnoreCase("Y");
 
-        List<UUID> photoIds = reviewRequestDto.getAttachedPhotoIds()
+        final List<UUID> photoIds = reviewRequestDto.getAttachedPhotoIds()
                 .stream()
                 .map(UUID::fromString).collect(Collectors.toList());
 
         if(removePhoto){
             // 첨부 파일 삭제시
-            boolean removedAll = photoService.removePhotos(reviewId, photoIds);
+            final boolean removedAll = photoService.removePhotos(reviewId, photoIds);
             // 모두 삭제 시 1점 회수
             if(removedAll){
                 // 포인트 차감
@@ -134,7 +135,7 @@ public class ReviewServiceImpl implements ReviewService{
         }else{
             // 리뷰 삭제시
             // 해당 리뷰로 부여된 포인트 회수
-            boolean removedAll = photoService.removeAll(reviewId);
+            final boolean removedAll = photoService.removeAll(reviewId);
             if(removedAll){
                 review.delete();
                 pointService.withdrawReviewPoint(userId, reviewId);

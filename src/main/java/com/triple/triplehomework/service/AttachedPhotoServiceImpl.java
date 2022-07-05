@@ -36,9 +36,9 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
 
         log.info("attached photo register...");
 
-        List<AttachedPhoto> photos = new ArrayList<>();
+        final List<AttachedPhoto> photos = new ArrayList<>();
 
-        Review review = reviewRepository.getReferenceById(reviewId);
+        final Review review = reviewRepository.getReferenceById(reviewId);
         AttachedPhotoId attachedPhotoId;
 
         // 기존 첨부파일이 있는 경우
@@ -47,15 +47,15 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
 
             // 해당 파일 photo id 존재하는 지 체크
             for(String photoId : photoIds){
-                AttachedPhoto photo = photoRepository.findByReviewAndPhotoId(review, UUID.fromString(photoId), NOT_REMOVED);
+                final AttachedPhoto photo = photoRepository.findByReviewAndPhotoId(review, UUID.fromString(photoId), NOT_REMOVED);
                 if(photo != null){
                     throw new PhotoExistException(photoId +" 파일은 이미 등록되어 있습니다.");
                 }
             }
 
-            Pageable pageable = PageRequest.of(0, 1);
-            AttachedPhoto point = photoRepository.findByReviewAndDesc(review, pageable).get(0);
-            attachedPhotoId = point.getAttachedPhotoId();
+            final Pageable pageable = PageRequest.of(0, 1);
+            final AttachedPhoto photo = photoRepository.findByReviewAndDesc(review, pageable).get(0);
+            attachedPhotoId = photo.getAttachedPhotoId();
         }else{
             attachedPhotoId = AttachedPhotoId.createAttachedPhotoId(review, 0L);
         }
@@ -63,8 +63,8 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
 
         // 첨부파일 엔티티 생성
         for(String strPhotoId : photoIds){
-            UUID photoId = UUID.fromString(strPhotoId);
-            AttachedPhoto attachedPhoto = AttachedPhoto.createAttachedPhoto(attachedPhotoId, photoId);
+            final UUID photoId = UUID.fromString(strPhotoId);
+            final AttachedPhoto attachedPhoto = AttachedPhoto.createAttachedPhoto(attachedPhotoId, photoId);
             photos.add(attachedPhoto);
         }
 
@@ -76,24 +76,24 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
     public boolean isAttached(UUID reviewId) {
 
         log.info("attached photo check...");
-        Review review = reviewRepository.getReferenceById(reviewId);
-        Pageable pageable = PageRequest.of(0, 1);
-        List<AttachedPhoto> photos = photoRepository.findByReview(review, NOT_REMOVED, pageable);
+        final Review review = reviewRepository.getReferenceById(reviewId);
+        final Pageable pageable = PageRequest.of(0, 1);
+        final List<AttachedPhoto> photos = photoRepository.findByReview(review, NOT_REMOVED, pageable);
 
-        return photos.size() > 0;
+        return photos != null && photos.size() > 0;
     }
 
     @Override
     public boolean removePhotos(UUID reviewId, List<UUID> photoIds) {
 
         log.info("attached photos remove ...");
-        Review review = reviewRepository.getReferenceById(reviewId);
-        List<AttachedPhoto> photos = photoRepository.findByPhotoIds(review, photoIds, NOT_REMOVED);
+        final Review review = reviewRepository.getReferenceById(reviewId);
+        final List<AttachedPhoto> photos = photoRepository.findByPhotoIds(review, photoIds, NOT_REMOVED);
 
         // 첨부파일 삭제
         photos.forEach(AttachedPhoto::delete);
 
-        int count = photoRepository.countByReview(review, NOT_REMOVED);
+        final int count = photoRepository.countByReview(review, NOT_REMOVED);
         return count == 0;
     }
 
@@ -101,12 +101,12 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
     public boolean removeAll(UUID reviewId) {
 
         log.info("attached photo remove all...");
-        Review review = reviewRepository.getReferenceById(reviewId);
+        final Review review = reviewRepository.getReferenceById(reviewId);
         final List<AttachedPhoto> photos = photoRepository.findByReview(review, NOT_REMOVED);
 
         photos.forEach(AttachedPhoto::delete);
 
-        int count = photoRepository.countByReview(review, NOT_REMOVED);
+        final int count = photoRepository.countByReview(review, NOT_REMOVED);
         return count == 0;
     }
 
@@ -114,8 +114,8 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
     @Transactional(readOnly = true)
     public List<String> getPhotoIds(UUID reviewId) {
 
-        Review review = reviewRepository.getReferenceById(reviewId);
-        List<AttachedPhoto> photos = photoRepository.findByReview(review, NOT_REMOVED);
+        final Review review = reviewRepository.getReferenceById(reviewId);
+        final List<AttachedPhoto> photos = photoRepository.findByReview(review, NOT_REMOVED);
 
         return photos.stream()
                 .map(p -> p.getPhotoId().toString())
@@ -130,9 +130,9 @@ public class AttachedPhotoServiceImpl implements AttachedPhotoService{
      * @return
      */
     private boolean isAttached(Review review){
-        Pageable pageable = PageRequest.of(0, 1);
-        List<AttachedPhoto> photos = photoRepository.findByReview(review, pageable);
+        final Pageable pageable = PageRequest.of(0, 1);
+        final List<AttachedPhoto> photos = photoRepository.findByReview(review, pageable);
 
-        return photos.size() > 0;
+        return photos != null && photos.size() > 0;
     }
 }

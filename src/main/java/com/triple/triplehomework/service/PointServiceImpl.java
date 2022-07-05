@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,24 +39,24 @@ public class PointServiceImpl implements PointService{
 
         log.info("point register...");
 
-        Member member = memberRepository.findByUserId(userId)
+        final Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new MemberNotFoundException("해당 유저는 존재하지 않습니다."));
 
-        TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
+        final TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
                 .orElseGet(() -> TotalPoint.createTotalPoint(member.getMno(), 0, 0));
 
-        Review review = reviewRepository.getReferenceById(reviewId);
+        final Review review = reviewRepository.getReferenceById(reviewId);
 
         // 1자 이상 텍스트 작성시 포인트 1점
-        Pageable pageable = PageRequest.of(0,1);
-        boolean existingPoint = pointRepository.existsPointByMno(member.getMno(), pageable).size() == 1;
+        final Pageable pageable = PageRequest.of(0,1);
+        final boolean existingPoint = pointRepository.existsPointByMno(member.getMno(), pageable).size() == 1;
 
         if(existingPoint){
             // 이력이 존재하는 경우
-            Point point = pointRepository.findByPoint(member.getMno(), pageable).get(0);
+            final Point point = pointRepository.findByPoint(member.getMno(), pageable).get(0);
 
-            PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
-            Point savedPoint = earnReviewPoint(review, pointId, point, PointOccurCode.REVIEW);
+            final PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
+            final Point savedPoint = earnReviewPoint(review, pointId, point, PointOccurCode.REVIEW);
             totalPoint.increaseEarnTotalAmt();
 
             // 1장 이상 사진 첨부시 포인트 1점 && 보너스 점수 1점
@@ -76,8 +77,8 @@ public class PointServiceImpl implements PointService{
             }
         }else{
             // 기존 이력이 존재하지 않는 경우
-            PointId pointId = PointId.createPointId(member.getMno(), 0L);
-            Point savedPoint = earnReviewPoint(review, pointId, null, PointOccurCode.REVIEW);
+            final PointId pointId = PointId.createPointId(member.getMno(), 0L);
+            final Point savedPoint = earnReviewPoint(review, pointId, null, PointOccurCode.REVIEW);
             totalPoint.increaseEarnTotalAmt();
 
             // 1장 이상 사진 첨부시 포인트 1점 && 보너스 점수 1점
@@ -108,23 +109,27 @@ public class PointServiceImpl implements PointService{
         log.info("photo point register...");
 
         // 유저 조회
-        Member member = memberRepository.findByUserId(userId)
+        final Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new MemberNotFoundException("해당 유저는 존재하지 않습니다."));
 
         // 총 적립금액 조회
-        TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
+        final TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
                 .orElseGet(() -> TotalPoint.createTotalPoint(member.getMno(), 0, 0));
 
-        Review review = reviewRepository.getReferenceById(reviewId);
+        final Review review = reviewRepository.getReferenceById(reviewId);
 
         // 포인트 최신 내역 조회
-        Pageable pageable = PageRequest.of(0,1);
-        Point point = pointRepository.findByPoint(member.getMno(), pageable).get(0);
-        PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
+        final Pageable pageable = PageRequest.of(0,1);
+        final List<Point> points = pointRepository.findByPoint(member.getMno(), pageable);
 
-        // 사진 첨부시 포인트 1점
-        earnPhotoPoint(review, pointId, point, PointOccurCode.PHOTO);
-        totalPoint.increaseEarnTotalAmt();
+        if(points != null && points.size() >0){
+            final Point point = points.get(0);
+            final PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
+
+            // 사진 첨부시 포인트 1점
+            earnPhotoPoint(review, pointId, point, PointOccurCode.PHOTO);
+            totalPoint.increaseEarnTotalAmt();
+        }
     }
 
 
@@ -134,23 +139,29 @@ public class PointServiceImpl implements PointService{
         log.info("photo point withdraw...");
 
         // 유저 조회
-        Member member = memberRepository.findByUserId(userId)
+        final Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new MemberNotFoundException("해당 유저는 존재하지 않습니다."));
 
         // 총 적립금액 조회
-        TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
+        final TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
                 .orElseGet(() -> TotalPoint.createTotalPoint(member.getMno(), 0, 0));
 
-        Review review = reviewRepository.getReferenceById(reviewId);
+        final Review review = reviewRepository.getReferenceById(reviewId);
 
         // 포인트 최신 내역 조회
-        Pageable pageable = PageRequest.of(0,1);
-        Point point = pointRepository.findByPoint(member.getMno(), pageable).get(0);
-        PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
+        final Pageable pageable = PageRequest.of(0,1);
+        final List<Point> points = pointRepository.findByPoint(member.getMno(), pageable);
 
-        // 포인트 1점 회수
-        deductPhotoPoint(review, pointId, point, PointOccurCode.PHOTO_ALL_REMOVED);
-        totalPoint.increaseDeductTotalAmt();
+        if(points != null && points.size() > 0){
+            // 내역이 있는 경우 점수 회수
+            final Point point = points.get(0);
+            final PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
+
+            // 포인트 1점 회수
+            deductPhotoPoint(review, pointId, point, PointOccurCode.PHOTO_ALL_REMOVED);
+            totalPoint.increaseDeductTotalAmt();
+        }
+
     }
 
     @Override
@@ -158,29 +169,35 @@ public class PointServiceImpl implements PointService{
 
         log.info("review point withdraw...");
         // 유저 조회
-        Member member = memberRepository.findByUserId(userId)
+        final Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new MemberNotFoundException("해당 유저는 존재하지 않습니다."));
 
         // 총 적립금액 조회
-        TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
+        final TotalPoint totalPoint = totalPointRepository.findById(member.getMno())
                 .orElseGet(() -> TotalPoint.createTotalPoint(member.getMno(), 0, 0));
 
-        Review review = reviewRepository.getReferenceById(reviewId);
+        final Review review = reviewRepository.getReferenceById(reviewId);
 
         // 리뷰로 적립된 포인트 및 차감된 포인트 조회
-        int earnTotalPoint = ObjectUtils.defaultIfNull(pointRepository.countEarnPointByReview(review, PointCode.EARN),0);
-        int deductTotalPoint = ObjectUtils.defaultIfNull(pointRepository.countDeductPointByReview(review, PointCode.DEDUCT),0);
+        final int earnTotalPoint = ObjectUtils.defaultIfNull(pointRepository.countEarnPointByReview(review, PointCode.EARN),0);
+        final int deductTotalPoint = ObjectUtils.defaultIfNull(pointRepository.countDeductPointByReview(review, PointCode.DEDUCT),0);
 
         // 포인트 최신 내역 조회
-        Pageable pageable = PageRequest.of(0,1);
-        Point point = pointRepository.findByPoint(member.getMno(), pageable).get(0);
-        PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
+        final Pageable pageable = PageRequest.of(0,1);
+        final List<Point> points = pointRepository.findByPoint(member.getMno(), pageable);
 
-        int deductPoint = earnTotalPoint - deductTotalPoint;
+        if(points != null && points.size() > 0){
+            // 내역이 있는 경우 점수 회수
+            final Point point = points.get(0);
+            final PointId pointId = PointId.createPointId(point.getPointId().getMno(), point.getPointId().getOccurSeq());
 
-        // 리뷰로 부여받은 남은 포인트 회수
-        deductReviewPoint(review, pointId, point, deductPoint, PointOccurCode.REVIEW_REMOVED);
-        totalPoint.increaseDeductTotalAmt(deductPoint);
+            final int deductPoint = earnTotalPoint - deductTotalPoint;
+
+            // 리뷰로 부여받은 남은 포인트 회수
+            deductReviewPoint(review, pointId, point, deductPoint, PointOccurCode.REVIEW_REMOVED);
+            totalPoint.increaseDeductTotalAmt(deductPoint);
+        }
+
     }
 
     /**
@@ -192,9 +209,9 @@ public class PointServiceImpl implements PointService{
      */
     private void deductReviewPoint(Review review, PointId pointId, Point point, int deductPoint, PointOccurCode occurCode) {
 
-        int balAmt = ObjectUtils.defaultIfNull(point.getBalAmt(),0);
+        final int balAmt = ObjectUtils.defaultIfNull(point.getBalAmt(),0);
 
-        Point reviewPoint =
+        final Point reviewPoint =
                 Point.createPoint(pointId, PointCode.DEDUCT, deductPoint, balAmt - deductPoint, occurCode.getOccurCause(), review);
 
         pointRepository.save(reviewPoint);
@@ -210,7 +227,7 @@ public class PointServiceImpl implements PointService{
     private void deductPhotoPoint(Review review, PointId pointId, Point point, PointOccurCode occurCode) {
 
         if(point != null && point.getBalAmt() != null){
-            Point photoPoint =
+            final Point photoPoint =
                     Point.createPoint(pointId, PointCode.DEDUCT, 1, point.getBalAmt() - 1, occurCode.getOccurCause(), review);
             pointRepository.save(photoPoint);
         }
@@ -228,12 +245,12 @@ public class PointServiceImpl implements PointService{
     private Point earnReviewPoint(Review review, PointId pointId, Point point, PointOccurCode occurCode){
 
         if(point != null && point.getBalAmt() != null){
-            Point reviewPoint =
+            final Point reviewPoint =
                     Point.createPoint(pointId, PointCode.EARN, 1, point.getBalAmt() + 1, occurCode.getOccurCause(), review);
             return pointRepository.save(reviewPoint);
         }
 
-        Point reviewPoint =
+        final Point reviewPoint =
                 Point.createPoint(pointId, PointCode.EARN, 1, 1, occurCode.getOccurCause(), review);
         return pointRepository.save(reviewPoint);
     }
@@ -245,7 +262,7 @@ public class PointServiceImpl implements PointService{
      * @param savedPoint
      */
     private void earnPhotoPoint(Review review, PointId pointId, Point savedPoint, PointOccurCode occurCode) {
-        Point existingAttachedReviewPoint =
+        final Point existingAttachedReviewPoint =
                 Point.createPoint(pointId, PointCode.EARN, 1, savedPoint.getBalAmt() + 1, occurCode.getOccurCause(), review);
         pointRepository.save(existingAttachedReviewPoint);
     }
@@ -258,7 +275,7 @@ public class PointServiceImpl implements PointService{
      * @param savedPoint
      */
     private void earnBonusPoint(Review review, PointId pointId, Point savedPoint, PointOccurCode occurCode) {
-        Point bonusPoint =
+        final Point bonusPoint =
                 Point.createPoint(pointId, PointCode.EARN, 1, savedPoint.getBalAmt() + 1, occurCode.getOccurCause(), review);
         pointRepository.save(bonusPoint);
     }
@@ -271,10 +288,10 @@ public class PointServiceImpl implements PointService{
      * @param savedPoint
      */
     private void earnPhotoAndBonusPoint(Review review, PointId pointId, Point savedPoint, TotalPoint totalPoint) {
-        Point existingAttachedReviewPoint =
+        final Point existingAttachedReviewPoint =
                 Point.createPoint(pointId, PointCode.EARN, 1, savedPoint.getBalAmt() + 1, PointOccurCode.PHOTO.getOccurCause(), review);
 
-        Point savedAttachedPoint = pointRepository.save(existingAttachedReviewPoint);
+        final Point savedAttachedPoint = pointRepository.save(existingAttachedReviewPoint);
         totalPoint.increaseEarnTotalAmt();
 
         earnBonusPoint(review, pointId, savedAttachedPoint, PointOccurCode.BONUS);

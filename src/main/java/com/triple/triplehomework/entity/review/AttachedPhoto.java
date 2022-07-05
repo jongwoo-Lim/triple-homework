@@ -42,6 +42,7 @@ public class AttachedPhoto extends BaseEntity {
         return AttachedPhoto.builder()
                 .attachedPhotoId(build)
                 .photoId(photoId)
+                .removeYn("N")
                 .build();
     }
 

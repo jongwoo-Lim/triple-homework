@@ -22,7 +22,7 @@ public interface PointRepository extends JpaRepository<Point, PointId> {
     @Query("select p " +
             "from Point p " +
             "where p.pointId.mno = :mno " +
-            "order by p.regDate desc")
+            "order by p.pointId.occurSeq desc")
     List<Point> findByPoint(@Param("mno") Long mno, Pageable pageable);
 
     @Query("select p " +

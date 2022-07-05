@@ -34,7 +34,7 @@ public interface AttachedPhotoRepository extends JpaRepository<AttachedPhoto, At
     @Query("select p " +
             "from AttachedPhoto p " +
             "where p.attachedPhotoId.review = :review " +
-            "order by p.regDate desc")
+            "order by p.attachedPhotoId.photoNo desc")
     List<AttachedPhoto> findByReviewAndDesc(@Param("review") Review review, Pageable pageable);
 
     @Query("select p " +
