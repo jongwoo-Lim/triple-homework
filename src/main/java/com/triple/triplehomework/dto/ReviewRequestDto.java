@@ -25,7 +25,6 @@ public class ReviewRequestDto {
 
     private String reviewId;
 
-    @NotBlank
     private String content;
 
     private List<String> attachedPhotoIds = Collections.emptyList();
