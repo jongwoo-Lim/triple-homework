@@ -18,7 +18,7 @@ public class Member extends BaseEntity {
     @Id @GeneratedValue
     private Long mno;
 
-    @Column(columnDefinition = "BINARY(16)")
+    @Column(columnDefinition = "BINARY(16)", unique = true)
     private UUID userId;
 
     public static Member createMember(UUID userId){
