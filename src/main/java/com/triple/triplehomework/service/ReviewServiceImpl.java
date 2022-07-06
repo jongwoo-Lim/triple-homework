@@ -4,6 +4,7 @@ import com.triple.triplehomework.dto.ReviewRequestDto;
 import com.triple.triplehomework.dto.ReviewResponseDto;
 import com.triple.triplehomework.entity.place.Place;
 import com.triple.triplehomework.entity.review.Review;
+import com.triple.triplehomework.exception.PlaceNotFoundException;
 import com.triple.triplehomework.exception.ReviewExistException;
 import com.triple.triplehomework.exception.ReviewNotFoundException;
 import com.triple.triplehomework.repository.PlaceRepository;
@@ -38,8 +39,9 @@ public class ReviewServiceImpl implements ReviewService{
         log.info("Review register...");
 
         // 회원은 한 장소에 하나의 리뷰만 작성 가능
-        final UUID placeId = UUID.fromString(reviewRequestDto.getPlaceId());
-        final Place place = placeRepository.getReferenceById(placeId);
+        final UUID requestPlaceId = UUID.fromString(reviewRequestDto.getPlaceId());
+        final Place place = placeRepository.findById(requestPlaceId)
+                .orElseThrow(() -> new PlaceNotFoundException("해당 장소는 존재하지 않습니다."));
 
         final UUID userId = UUID.fromString(reviewRequestDto.getUserId());
 
