@@ -142,3 +142,9 @@ MySql DB 사용
 |POST|/events| {<br/>"type": "REVIEW",<br/>"action": "DELETE, <br/>"reviewId": "240a0658-dc5f-4878-9381-ebb7b2667772",<br/>"content": "",<br/>"attachedPhotoIds": ["e4d1a64e-a531-46de-88d0-ff0ed70c0bb8", "afb0cef2-851d-4a50-bb07-9cc15cbdc332"],<br/>"userId": "3ede0ef2-92b7-4817-a5f3-0c575361f745",<br/>"placeId": "2e4baf1c-5acb-4efb-a1af-eddada31b00f"<br/> "removePhotoYn" : "N" <br/>} |리뷰 삭제<br/> 및 <br/> 첨부파일 삭제|
 |GET|/member/{userId}/point| |회원 포인트 <br/>조회
 
+## ERD
+
+### 논리명
+![논리명](./ERD_logical.PNG)
+### 물리명
+![물리명](./ERD_physical.PNG)
