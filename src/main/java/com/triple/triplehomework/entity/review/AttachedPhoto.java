@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @Builder
 @Getter
 @DynamicInsert
+@DynamicUpdate
 @ToString
 public class AttachedPhoto extends BaseEntity {
 

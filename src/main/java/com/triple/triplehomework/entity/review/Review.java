@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @DynamicInsert
+@DynamicUpdate
 @ToString(exclude = "place")
 public class Review extends BaseEntity {
 

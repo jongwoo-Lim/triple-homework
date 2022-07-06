@@ -2,6 +2,7 @@ package com.triple.triplehomework.entity.point;
 
 import com.triple.triplehomework.entity.BaseEntity;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,6 +14,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @Builder
 @Getter
+@DynamicUpdate
 @ToString
 public class TotalPoint extends BaseEntity {
 
