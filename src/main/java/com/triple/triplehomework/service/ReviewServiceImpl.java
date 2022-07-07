@@ -111,7 +111,6 @@ public class ReviewServiceImpl implements ReviewService{
 
         boolean result = false;
         final UUID reviewId = UUID.fromString(reviewRequestDto.getReviewId());
-        final UUID userId = UUID.fromString(reviewRequestDto.getUserId());
 
         // 리뷰 조회
         final Review review = reviewRepository.findByReviewIdAndRemoveYn(reviewId, NOT_REMOVED)
@@ -130,7 +129,7 @@ public class ReviewServiceImpl implements ReviewService{
             // 모두 삭제 시 1점 회수
             if(removedAll){
                 // 포인트 차감
-                pointService.withdrawPhotoPoint(userId, reviewId);
+                pointService.withdrawPhotoPoint(review.getUserId(), reviewId);
             }
 
             result = true;
@@ -140,7 +139,7 @@ public class ReviewServiceImpl implements ReviewService{
             final boolean removedAll = photoService.removeAll(reviewId);
             if(removedAll){
                 review.delete();
-                pointService.withdrawReviewPoint(userId, reviewId);
+                pointService.withdrawReviewPoint(review.getUserId(), reviewId);
                 result = true;
             }
         }
