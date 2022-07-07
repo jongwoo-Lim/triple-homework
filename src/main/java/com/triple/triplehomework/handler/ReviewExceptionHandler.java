@@ -17,6 +17,12 @@ public class ReviewExceptionHandler {
 
     private final ResponseDto responseDto;
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> illegalArgumentException(IllegalArgumentException ex){
+        log.info("error message: {}", ex.getMessage());
+        return responseDto.badRequest(ex.getMessage());
+    }
+
     @ExceptionHandler(PlaceNotFoundException.class)
     public ResponseEntity<?> placeNotFoundException(PlaceNotFoundException ex){
         log.info("error message: {}", ex.getMessage());

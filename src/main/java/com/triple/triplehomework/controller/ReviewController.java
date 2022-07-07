@@ -64,7 +64,9 @@ public class ReviewController {
 
                     if(hasReviewId){
                         final boolean removeBody = reviewService.remove(reviewRequestDto);
-                        if(reviewRequestDto.getRemovePhotoYn().equalsIgnoreCase("Y")){
+                        final String removePhotoYn = reviewRequestDto.getRemovePhotoYn();
+
+                        if(StringUtils.hasText(removePhotoYn) && removePhotoYn.equalsIgnoreCase("Y")){
                             return responseDto.ok(removeBody, "첨부 파일 삭제 성공", HttpStatus.OK);
                         }
                         return responseDto.ok(removeBody, "리뷰 삭제 성공", HttpStatus.OK);
